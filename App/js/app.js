@@ -1,4 +1,27 @@
+const index = { template: '<div>front.index</div>' };
+const dungeonPage = { template: '<div>dungeonPage</div>' };
+const leaderboardPage = { template: '<div>leaderboardPage</div>' };
+const profilePage = { template: '<div>profilePage</div>' };
+const forumPage = { template: '<div>forumPage</div>' };
+const shopPage = { template: '<div>shopPage</div>' };
+
+const routes = [
+    { path: '/index', component: index },
+    { path: '/dungeonPage', component: dungeonPage },
+    { path: '/leaderboardPage', component: leaderboardPage },
+    { path: '/profilePage', component: profilePage },
+    { path: '/forumPage', component: forumPage },
+    { path: '/shopPage', component: shopPage },
+];
+const router = new VueRouter({
+    routes // short for `routes: routes`
+})
+
+
+
+
 let app = new Vue({
+    router,
     el: '#app',
     vuetify: new Vuetify({
         theme: {

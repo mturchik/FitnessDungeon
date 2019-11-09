@@ -38,3 +38,4 @@ const db = firebase.firestore();
 // Init Vue Modules
 Vue.use(Vuetify);
 Vue.use(Vuefire);
+Vue.use(Router);

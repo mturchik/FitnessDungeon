@@ -4,9 +4,9 @@ let app = new Vue({
         theme: {
             themes: {
                 light: {
-                    primary: '#43b367',
+                    primary: '#765555',
                     secondary: '#ffa733',
-                    background: '#346296'
+                    background: '#271717'
                 }
             }
         }

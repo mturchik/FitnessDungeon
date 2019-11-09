@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Wow Profit App</title>
+    <title>Fitlivion</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
@@ -12,54 +12,20 @@
 </head>
 <body>
 <v-app id="app">
-    <v-app-bar :color="activeFab.color" app dense>
-        <v-toolbar-title>Warcraft Mount Log</v-toolbar-title>
+    <v-app-bar color="primary" app dense>
+        <v-toolbar-title>Fitlivion</v-toolbar-title>
         <v-spacer></v-spacer>
-        <div class="mt-6 d-none d-sm-flex"
-             v-show="loaded">
-            <v-text-field dense
-                          label="Search"
-                          placeholder="Search By Name"
-                          single-line
-                          solo
-                          v-model="searchInput"></v-text-field>
-        </div>
-        <v-spacer></v-spacer>
-        <v-menu bottom
-                transition="slide-y-transition">
-            <template v-slot:activator="{ on }">
-                <v-btn :color="activeFab.offColor"
-                       dark
-                       class="d-none d-sm-flex"
-                       v-on="on"
-                       v-show="loaded">
-                    <span v-if="source === 'All'">Select Source</span>
-                    <span v-else>{{source}}</span>
-                </v-btn>
-            </template>
-            <v-list>
-                <v-list-item
-                        :key="i"
-                        @click="changeSource(s)"
-                        v-for="(s, i) in allSources">
-                    <v-list-item-title>{{ s }}</v-list-item-title>
-                </v-list-item>
-            </v-list>
-        </v-menu>
-        <v-btn :color="activeFab.offColor"
-               @click.prevent="logout"
+        <v-btn @click.prevent="logout"
+               color="secondary"
                class="ml-2"
-               v-if="authUser"
-               v-show="loaded">Log Out
+               v-if="authUser">Log Out
         </v-btn>
-        <v-btn :color="activeFab.offColor"
-               @click.prevent="login"
+        <v-btn @click.prevent="login"
+               color="secondary"
                class="ml-2"
-               v-else
-               v-show="loaded">Log In
+               v-else>Log In
         </v-btn>
-        <v-avatar v-if="authUser"
-                  v-show="loaded">
+        <v-avatar v-if="authUser">
             <v-img :src="authUser.photoURL"
                    class="d-none d-sm-flex"
                    alt="avatar"/>
@@ -67,96 +33,14 @@
     </v-app-bar>
     <v-content class="background">
         <v-container>
-            <v-row v-if="!loaded">
-                <v-col>
-                    <h1>Loading</h1>
-                    <v-img max-height="500" src="img/loading.gif"/>
-                </v-col>
-            </v-row>
-            <v-row v-else>
-                <v-col :key="i"
-                       cols="auto"
-                       v-for="(mount, i) in displayedMounts">
-                    <v-card :color="getMountColor(mount.mountId)"
-                            @click="addToUserCollection(mount.mountId)"
-                            hover
-                            max-height="150"
-                            max-width="150"
-                            outlined>
-                        <v-tooltip bottom>
-                            <template v-slot:activator="{on}">
-                                <v-img :src="mount.display"
-                                       aspect-ratio:1
-                                       class="background lighten-2"
-                                       lazy-src="img/loading.gif"
-                                       max-height="150"
-                                       max-width="150"
-                                       v-on="on">
-                                    <v-btn icon>
-                                        <v-icon v-if="!authUser" color="primary">mdi-{{sourceIcon(mount)}}</v-icon>
-                                        <v-icon v-else :color="getMountColor(mount.mountId)">mdi-{{sourceIcon(mount)}}
-                                        </v-icon>
-                                    </v-btn>
-                                </v-img>
-                            </template>
-                            <span>
-                                <h2>{{mount.name}}</h2>
-                                <hr/>
-                                <h3>Source: {{mount.source}}</h3>
-                                <hr/>
-                                <h4>{{mount.description}}</h4>
-                            </span>
-                        </v-tooltip>
-                    </v-card>
-                </v-col>
-            </v-row>
-            <v-row v-show="displayedMounts.length > 0">
-                <v-btn :color="activeFab.offColor"
-                       @click="toDisplayNo += 12"
-                       class="mx-auto my-6"
-                       v-show="displayedMounts.length >= toDisplayNo">Show More
-                </v-btn>
-                <v-btn :color="activeFab.offColor"
-                       @click="toDisplayNo = 18"
-                       class="mx-auto my-6"
-                       v-show="displayedMounts.length > 18 && toDisplayNo > 18">Reset View Count
-                </v-btn>
-            </v-row>
+
         </v-container>
     </v-content>
     <v-content class="background">
-        <!--Floating Action Button to swap User Collection and All Mounts-->
-        <v-fab-transition class="background">
-            <v-btn :color="activeFab.offColor"
-                   :key="activeFab.icon"
-                   v-if="authUser"
-                   @click="toggleGallery"
-                   class="v-btn ml-3 mb-12 "
-                   fab
-                   fixed
-                   bottom
-                   left>
-                <v-icon>mdi-{{ activeFab.icon }}</v-icon>
-            </v-btn>
-        </v-fab-transition>
-        <v-fab-transition class="background">
-            <v-btn :color="activeFab.offColor"
-                   v-show="loaded"
-                   @click="toggleSort"
-                   class="v-btn ml-3 mb-12"
-                   fab
-                   fixed
-                   bottom
-                   right>
-                <v-icon>mdi-{{ activeSort }}</v-icon>
-            </v-btn>
-        </v-fab-transition>
     </v-content>
-    <v-footer :color="activeFab.color" app>
+    <v-footer color="primary" app>
         <div>
             &copy; {{new Date().getFullYear()}}
-            <span v-show="loaded">| Total Mounts: {{mounts.length}}
-                <span v-if="authUser">| Your Collection: {{authUser.mounts.length}}</span></span>
         </div>
         <div class="flex-grow-1"></div>
     </v-footer>

@@ -12,14 +12,6 @@ let app = new Vue({
         }
     }),
     data: {
-        mounts: [],
-        source: "All",
-        toDisplayNo: 18,
-        searchInput: "",
-        displayGallery: 0,
-        currentSort: 0,
-        mountsLoaded: false,
-        userLoaded: false,
         authUser: null
     },
     methods:

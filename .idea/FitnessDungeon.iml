@@ -9,17 +9,12 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="firebase" level="application" />
-    <orderEntry type="library" name="jquery-3.3.1.slim" level="application" />
-    <orderEntry type="library" name="jquery-3.4.1" level="application" />
-    <orderEntry type="library" name="jquery-latest" level="application" />
     <orderEntry type="library" name="popper" level="application" />
     <orderEntry type="library" name="vue" level="application" />
     <orderEntry type="library" name="vue-resource" level="application" />
     <orderEntry type="library" name="vue-router" level="application" />
     <orderEntry type="library" name="vuefire" level="application" />
     <orderEntry type="library" name="vuetify" level="application" />
-    <orderEntry type="library" name="index" level="application" />
-    <orderEntry type="library" name="index.cjs" level="application" />
     <orderEntry type="library" name="@types/firebase-client" level="application" />
   </component>
 </module>

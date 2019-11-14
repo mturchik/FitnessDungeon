@@ -4,9 +4,7 @@ const User = function (firebaseUser) {
         displayName: '',
         uid: '',
         email: '',
-        photoURL: '',
-        firebaseId: '',
-        mounts: [0]//deserialize from string in firebase to an array
+        photoURL: ''
     };
 
     if (firebaseUser) {
@@ -21,14 +19,15 @@ const User = function (firebaseUser) {
 
 ////////////////////////////////////////////////////////////////////////
 //Firebase Config
-const firebaseConfig = {
-    apiKey: "AIzaSyA6w5NxmSYIm1IKgXeUIVhRl0HekyZOT3w",
-    authDomain: "wowprofit-66246.firebaseapp.com",
-    databaseURL: "https://wowprofit-66246.firebaseio.com",
-    projectId: "wowprofit-66246",
-    storageBucket: "wowprofit-66246.appspot.com",
-    messagingSenderId: "436347944709",
-    appId: "1:436347944709:web:4abe41eed4778ed861416c"
+var firebaseConfig = {
+    apiKey: "AIzaSyA6tBBf4Q4sJqg9EerEyRp-QPBAK_cs2kg",
+    authDomain: "fitnessdungeon-d40e4.firebaseapp.com",
+    databaseURL: "https://fitnessdungeon-d40e4.firebaseio.com",
+    projectId: "fitnessdungeon-d40e4",
+    storageBucket: "fitnessdungeon-d40e4.appspot.com",
+    messagingSenderId: "737505878722",
+    appId: "1:737505878722:web:244fa378a0ee32aefb115b",
+    measurementId: "G-4F2NXL7C1X"
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -38,4 +37,3 @@ const db = firebase.firestore();
 // Init Vue Modules
 Vue.use(Vuetify);
 Vue.use(Vuefire);
-Vue.use(Router);

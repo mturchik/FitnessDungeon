@@ -18,6 +18,7 @@ let app = new Vue({
         tasks: null
     },
     methods: {
+        //user login
         login() {
             let provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth()
@@ -27,6 +28,7 @@ let app = new Vue({
                         " | Your hand tailored error message: " + error.message);
                 });
         },
+        //user logout
         logout() {
             firebase.auth().signOut();
         }
@@ -66,12 +68,13 @@ let app = new Vue({
                 }
             }
         });
-
     },
     mounted() {
+        //listener for login
         bus.$on('Login', () => {
             this.login();
         });
+        //listener for logout
         bus.$on('Logout', () => {
             this.logout();
         });

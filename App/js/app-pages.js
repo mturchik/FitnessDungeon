@@ -59,12 +59,41 @@ const HomePage = Vue.component('HomePage', {
 const DungeonPage = Vue.component('DungeonPage', {
     props: {
         authUser: {required: true},
+        tasks: {required: true}
+    },
+    methods: {
+        something(task) {
+            console.log(task);
+        }
+    },
+    computed:{
+        isUserOnTask(task){
+            return true//!task.usersOnTask.includes(this.authUser.uid);
+        }
     },
     // language=HTML
     template: `
-        <div>
-            <v-img src="img/frontsplash.png"/>
-        </div>
+        <v-row>
+            <v-col v-for="category in tasks"
+                   :key="category.CategoryName"
+                   cols="5">
+                <v-card shaped color="primary">
+                    <v-card-title>{{category.CategoryName}} - Bonus Points: {{category.BonusPoints}}</v-card-title>
+                    <v-list dense color="primary">
+                        <v-list-item two-line
+                                     v-for="(task, i) in category.tasks"
+                                     :key="i"
+                                     link
+                                     @click.prevent="something(task)">
+                            <v-list-item-content>
+                                <v-list-item-title>Task: {{task.task}}</v-list-item-title>
+                                <v-list-item-subtitle>Points: {{task.points}}</v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
+                    </v-list>
+                </v-card>
+            </v-col>
+        </v-row>
     `
 });
 const LeaderBoardPage = Vue.component('LeaderBoardPage', {

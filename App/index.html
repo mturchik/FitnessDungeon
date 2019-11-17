@@ -16,7 +16,7 @@
     <navigation :auth-user="authUser"></navigation>
     <v-content class="background">
         <v-container>
-            <router-view :auth-user="authUser"></router-view>
+            <router-view :auth-user="authUser" :tasks="tasks"></router-view>
         </v-container>
     </v-content>
     <v-footer color="primary" app>

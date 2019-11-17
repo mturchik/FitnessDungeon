@@ -3,13 +3,57 @@ const HomePage = Vue.component('HomePage', {
         authUser: {required: true},
     },
 
+    methods: {
+        login() {
+            bus.$emit('Login');
+        }
+    },
+
     // language=HTML
     template: `
-        <v-col>
-            <v-row>
-                <v-btn class="primary">Hello</v-btn>
-            </v-row>
-        </v-col>
+        <v-expansion-panels focusable
+                            popout
+                            mandatory>
+            <v-expansion-panel>
+                <v-expansion-panel-header>Welcome to the Dungeon</v-expansion-panel-header>
+                <v-expansion-panel-content>
+                    @sam can you write some stuff here, this is like the intro splash page
+                    <hr/>
+                    we should also format these to look nice too
+                    <br/>
+                    <v-row justify="center" class="pt-2">
+                        <router-link v-if="authUser"
+                                     to="/dungeon"
+                                     tag="v-btn"
+                                     class="secondary">Play Now!
+                        </router-link>
+                        <v-btn @click.prevent="login"
+                               color="secondary"
+                               class="ml-2"
+                               v-else>Log In
+                        </v-btn>
+                    </v-row>
+                </v-expansion-panel-content>
+            </v-expansion-panel>
+            <v-expansion-panel>
+                <v-expansion-panel-header>How to play</v-expansion-panel-header>
+                <v-expansion-panel-content>
+                    Lorem ipsum dolor sit amet.
+                </v-expansion-panel-content>
+            </v-expansion-panel>
+            <v-expansion-panel>
+                <v-expansion-panel-header>Compete with friends</v-expansion-panel-header>
+                <v-expansion-panel-content>
+                    Lorem ipsum dolor sit amet.
+                </v-expansion-panel-content>
+            </v-expansion-panel>
+            <v-expansion-panel>
+                <v-expansion-panel-header>Buy some bling</v-expansion-panel-header>
+                <v-expansion-panel-content>
+                    Lorem ipsum dolor sit amet.
+                </v-expansion-panel-content>
+            </v-expansion-panel>
+        </v-expansion-panels>
     `
 });
 const DungeonPage = Vue.component('DungeonPage', {
@@ -19,7 +63,7 @@ const DungeonPage = Vue.component('DungeonPage', {
     // language=HTML
     template: `
         <div>
-            <v-img src="img/frontsplash.png" />
+            <v-img src="img/frontsplash.png"/>
         </div>
     `
 });

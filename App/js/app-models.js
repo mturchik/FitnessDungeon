@@ -19,7 +19,7 @@ const User = function (firebaseUser) {
 
 ////////////////////////////////////////////////////////////////////////
 //Firebase Config
-var firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyA6tBBf4Q4sJqg9EerEyRp-QPBAK_cs2kg",
     authDomain: "fitnessdungeon-d40e4.firebaseapp.com",
     databaseURL: "https://fitnessdungeon-d40e4.firebaseio.com",

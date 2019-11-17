@@ -3,18 +3,12 @@ Vue.component('navigation', {
         authUser: {required: true},
     },
 
-    methods: {
-        login() {
-            let provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth()
-                .signInWithPopup(provider)
-                .catch(function (error) {
-                    alert("Wow, there was a log-in error here. Code: " + error.code +
-                        " | Your hand tailored error message: " + error.message);
-                });
+    methods:{
+        login(){
+            bus.$emit('Login');
         },
-        logout() {
-            firebase.auth().signOut();
+        logout(){
+            bus.$emit('Logout');
         }
     },
 
@@ -30,16 +24,66 @@ Vue.component('navigation', {
                         <span>Navigation</span>
                     </v-tooltip>
                 </template>
+                <v-divider></v-divider>
                 <v-list dense
                         rounded>
+                    <v-list-item>
+                        <v-list-item-content>
+                            <v-list-item-title>
+                                Fitness Dungeon
+                            </v-list-item-title>
+                            <v-list-item-subtitle>
+                                Get Fit Or Die Trying
+                            </v-list-item-subtitle>
+                        </v-list-item-content>
+                    </v-list-item>
                     <router-link to="/home" tag="v-list-item">
-                        <v-list-item-title>Home</v-list-item-title>
+                        <v-list-item-icon>
+                            <v-icon>mdi-home</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Home</v-list-item-title>
+                        </v-list-item-content>
                     </router-link>
                     <router-link to="/dungeon" tag="v-list-item">
-                        <v-list-item-title>Dungeon</v-list-item-title>
+                        <v-list-item-icon>
+                            <v-icon>mdi-castle</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Dungeon</v-list-item-title>
+                        </v-list-item-content>
                     </router-link>
                     <router-link to="/leaderBoard" tag="v-list-item">
-                        <v-list-item-title>Leaderboard</v-list-item-title>
+                        <v-list-item-icon>
+                            <v-icon>mdi-bulletin-board</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Leaderboard</v-list-item-title>
+                        </v-list-item-content>
+                    </router-link>
+                    <router-link to="/profile" tag="v-list-item">
+                        <v-list-item-icon>
+                            <v-icon>mdi-face-profile</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Profile</v-list-item-title>
+                        </v-list-item-content>
+                    </router-link>
+                    <router-link to="/forum" tag="v-list-item">
+                        <v-list-item-icon>
+                            <v-icon>mdi-forum</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Forum</v-list-item-title>
+                        </v-list-item-content>
+                    </router-link>
+                    <router-link to="/shop" tag="v-list-item">
+                        <v-list-item-icon>
+                            <v-icon>mdi-basket</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Shop</v-list-item-title>
+                        </v-list-item-content>
                     </router-link>
                 </v-list>
             </v-menu>
@@ -62,5 +106,4 @@ Vue.component('navigation', {
             </v-avatar>
         </v-app-bar>
     `,
-
 });

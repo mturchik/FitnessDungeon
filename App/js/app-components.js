@@ -1,16 +1,5 @@
 Vue.component('navigation', {
-    props: {
-        authUser: {required: true},
-    },
-
-    methods:{
-        login(){
-            bus.$emit('Login');
-        },
-        logout(){
-            bus.$emit('Logout');
-        }
-    },
+    mixins: [userMix],
 
     // language=HTML
     template: `
@@ -89,21 +78,75 @@ Vue.component('navigation', {
             </v-menu>
             <v-toolbar-title>Fit-Livion</v-toolbar-title>
             <v-spacer></v-spacer>
+            <v-tooltip left v-if="authUser">
+                <template v-slot:activator="{ on: tooltip }">
+                    <v-avatar class="mr-4" size="36" v-on="tooltip">
+                        <v-img :src="authUser.photoURL"
+                               class="d-none d-sm-flex"
+                               alt="avatar"/>
+                    </v-avatar>
+                </template>
+                <span>{{authUser.displayName}}</span>
+            </v-tooltip>
             <v-btn @click.prevent="logout"
-                   color="secondary"
+                   color="action"
                    class="ml-2"
                    v-if="authUser">Log Out
             </v-btn>
             <v-btn @click.prevent="login"
-                   color="secondary"
+                   color="action"
                    class="ml-2"
                    v-else>Log In
             </v-btn>
-            <v-avatar v-if="authUser">
-                <v-img :src="authUser.photoURL"
-                       class="d-none d-sm-flex"
-                       alt="avatar"/>
-            </v-avatar>
         </v-app-bar>
     `,
+});
+Vue.component('category', {
+    mixins: [userMix],
+
+    props: {
+        category: {required: true}
+    },
+    methods: {},
+
+    // language=HTML
+    template: `
+        <v-card shaped color="primary">
+            <v-card-title>{{category.CategoryName}} - Bonus Points: {{category.BonusPoints}}</v-card-title>
+            <v-list dense color="primary">
+                <task v-for="(task, i) in category.tasks"
+                      :key="i"
+                      :task="task"
+                      :auth-user="authUser"/>
+            </v-list>
+        </v-card>
+    `
+});
+
+Vue.component('task', {
+    mixins: [userMix],
+
+    props: {
+        task: {required: true}
+    },
+    methods: {
+        checkUserOnTask(task) {
+            return task.usersOnTask.includes(this.authUser.uid);
+        }
+    },
+
+    // language=HTML
+    template: `
+        <v-list-item two-line>
+            <v-list-item-content>
+                <v-list-item-title>Task: {{task.task}}</v-list-item-title>
+                <v-list-item-subtitle>Points: {{task.points}}</v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action v-if="checkUserOnTask(task)">
+                <v-btn icon>
+                    <v-icon color="action">mdi-information</v-icon>
+                </v-btn>
+            </v-list-item-action>
+        </v-list-item>
+    `
 });

@@ -1,13 +1,9 @@
 const HomePage = Vue.component('HomePage', {
-    props: {
-        authUser: {required: true},
-    },
+    mixins: [userMix],
 
-    methods: {
-        login() {
-            bus.$emit('Login');
-        }
-    },
+    props: {},
+
+    methods: {},
 
     // language=HTML
     template: `
@@ -25,10 +21,10 @@ const HomePage = Vue.component('HomePage', {
                         <router-link v-if="authUser"
                                      to="/dungeon"
                                      tag="v-btn"
-                                     class="secondary">Play Now!
+                                     class="action">Play Now!
                         </router-link>
                         <v-btn @click.prevent="login"
-                               color="secondary"
+                               color="action"
                                class="ml-2"
                                v-else>Log In
                         </v-btn>
@@ -57,41 +53,20 @@ const HomePage = Vue.component('HomePage', {
     `
 });
 const DungeonPage = Vue.component('DungeonPage', {
+    mixins: [userMix],
+
     props: {
-        authUser: {required: true},
         tasks: {required: true}
     },
-    methods: {
-        something(task) {
-            console.log(task);
-        }
-    },
-    computed:{
-        isUserOnTask(task){
-            return true//!task.usersOnTask.includes(this.authUser.uid);
-        }
-    },
+    methods: {},
+
     // language=HTML
     template: `
         <v-row>
-            <v-col v-for="category in tasks"
-                   :key="category.CategoryName"
+            <v-col v-for="(category, i) in tasks"
+                   :key="i"
                    cols="5">
-                <v-card shaped color="primary">
-                    <v-card-title>{{category.CategoryName}} - Bonus Points: {{category.BonusPoints}}</v-card-title>
-                    <v-list dense color="primary">
-                        <v-list-item two-line
-                                     v-for="(task, i) in category.tasks"
-                                     :key="i"
-                                     link
-                                     @click.prevent="something(task)">
-                            <v-list-item-content>
-                                <v-list-item-title>Task: {{task.task}}</v-list-item-title>
-                                <v-list-item-subtitle>Points: {{task.points}}</v-list-item-subtitle>
-                            </v-list-item-content>
-                        </v-list-item>
-                    </v-list>
-                </v-card>
+                <category :auth-user="authUser" :category="category"/>
             </v-col>
         </v-row>
     `

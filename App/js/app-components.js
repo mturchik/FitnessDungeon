@@ -101,52 +101,73 @@ Vue.component('navigation', {
         </v-app-bar>
     `,
 });
-Vue.component('category', {
-    mixins: [userMix],
-
-    props: {
-        category: {required: true}
-    },
-    methods: {},
-
-    // language=HTML
-    template: `
-        <v-card shaped color="primary">
-            <v-card-title>{{category.CategoryName}} - Bonus Points: {{category.BonusPoints}}</v-card-title>
-            <v-list dense color="primary">
-                <task v-for="(task, i) in category.tasks"
-                      :key="i"
-                      :task="task"
-                      :auth-user="authUser"/>
-            </v-list>
-        </v-card>
-    `
-});
-
 Vue.component('task', {
     mixins: [userMix],
-
     props: {
         task: {required: true}
     },
     methods: {
-        checkUserOnTask(task) {
-            return task.usersOnTask.includes(this.authUser.uid);
+        startTask() {
+            bus.$emit('startTask', this.task);
+        },
+        finishTask() {
+            bus.$emit('finishTask', this.task);
+        }
+    },
+    computed: {
+        userIsOnTask() {
+            return this.task.usersOnTask.some(t => {
+                return t.uid === this.authUser.uid
+            });
+        },
+        canComplete() {
+            let date = new Date();
+            let userOnTask = this.task.usersOnTask.find(u => {
+                return u.uid === this.authUser.uid
+            });
+            if (userOnTask) {
+                return date > userOnTask.canComplete;
+            }
+            return false;
+        },
+        completeTime() {
+            let d = this.task.usersOnTask.find(t => {
+                return t.uid === this.authUser.uid
+            }).canComplete;
+
+            let minutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes();
+
+            if (d.getHours() < 12)
+                return d.getHours() + ':' + minutes + ' AM';
+
+            return (d.getHours() - 12) + ':' + minutes + ' PM';
         }
     },
 
     // language=HTML
     template: `
-        <v-list-item two-line>
-            <v-list-item-content>
-                <v-list-item-title>Task: {{task.task}}</v-list-item-title>
-                <v-list-item-subtitle>Points: {{task.points}}</v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action v-if="checkUserOnTask(task)">
-                <v-btn icon>
-                    <v-icon color="action">mdi-information</v-icon>
+        <v-card max-width="350" min-width="250">
+            <v-list-item three-line>
+                <v-list-item-content>
+                    <div class="overline mb-4">Points: {{task.points}}</div>
+                    <v-list-item-title class="headline mb-1">{{task.category}}</v-list-item-title>
+                    <v-list-item-subtitle>Task: {{task.details}}</v-list-item-subtitle>
+                </v-list-item-content>
+            </v-list-item>
+            <v-card-actions>
+                <v-btn text color="action"
+                       v-if="!userIsOnTask"
+                       @click="startTask">Start Task
                 </v-btn>
-            </v-list-item-action>
-        </v-list-item>
+                <v-btn text color="action"
+                       v-if="userIsOnTask && canComplete"
+                       @click="finishTask">Finish Task
+                </v-btn>
+                <v-btn text color="grey"
+                       v-if="userIsOnTask && !canComplete"
+                       disabled>Completable After: {{completeTime}}
+                </v-btn>
+            </v-card-actions>
+        </v-card>
     `
 });

@@ -15,8 +15,7 @@ let app = new Vue({
     }),
     router: router,
     data: {
-        authUser: null,
-        tasks: null
+        authUser: null
     },
     methods: {
         //user login
@@ -48,27 +47,6 @@ let app = new Vue({
                 this.authUser = null;
             }
         });
-        //Update local task array with FireBase data
-        db.collection('tasks').onSnapshot(s => {
-            if (!this.tasks) {
-                this.tasks = [];
-                for (let i = 0; i < s.docs.length; i++) {
-                    this.tasks.push(s.docs[i].data());
-                }
-            } else {
-                for (let i = 0; i < s.docChanges().length; i++) {
-                    let docChange = s.docChanges()[i];
-                    if (docChange.type === "modified") {
-                        let newCat = docChange.doc.data();
-                        let oldCat = this.tasks.find((t) => {
-                            return t.CategoryName === newCat.CategoryName
-                        });
-                        this.tasks.splice(this.tasks.indexOf(oldCat), 1, newCat);
-                    } else
-                        console.log("UNhandled change", docChange);
-                }
-            }
-        });
     },
     mounted() {
         //listener for login
@@ -78,6 +56,48 @@ let app = new Vue({
         //listener for logout
         bus.$on('Logout', () => {
             this.logout();
+        });
+        //listener for start task
+        bus.$on('startTask', (task) => {
+            if (this.authUser) {
+                if (!task.usersOnTask)
+                    task.usersOnTask = [];
+                //check if user on task
+                if (!task.usersOnTask.some(u => {
+                    return u.uid === this.authUser.uid
+                })) {
+                    let date = new Date();
+                    //return a date that is 30 minutes in the future
+                    if (date.getMinutes() < 30) {
+                        //Add 30 minutes
+                        date.setMinutes(date.getMinutes() + 30);
+                    } else {
+                        //subtract 30 and then add an hour to get the proper minutes past the hour
+                        date.setMinutes(date.getMinutes() - 30);
+                        date.setHours(date.getHours() + 1);
+                    }
+
+                    task.usersOnTask.push({uid: this.authUser.uid, canComplete: date});
+                    db.collection('tasks').doc(task.id).set(task);
+                }
+            }
+        });
+        //listener for finish task
+        bus.$on('finishTask', (task) => {
+            if (this.authUser) {
+                if (!task.usersOnTask)
+                    task.usersOnTask = [];
+                //check if user on task
+                if (task.usersOnTask.some(u => {
+                    return u.uid === this.authUser.uid
+                })) {
+                    let userOnTask = task.usersOnTask.find(u => {
+                        return u.uid === this.authUser.uid
+                    });
+                    task.usersOnTask.splice(task.usersOnTask.indexOf(userOnTask), 1);
+                    db.collection('tasks').doc(task.id).set(task);
+                }
+            }
         });
     },
     watch: {}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NewTask</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lobster&display=swap" rel="stylesheet">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui" name="viewport">
+    <link href="css/app.css" rel="stylesheet">
+</head>
+<body>
+<v-app id="newTask">
+    <v-content class="background">
+        <v-container>
+            <v-form ref="form"
+                    v-model="valid"
+                    lazy-validation>
+                <v-select v-model="category"
+                          :items="categories"
+                          label="Category"
+                          required></v-select>
+                <v-text-field v-model="details"
+                              label="Task Details"
+                              required></v-text-field>
+                <v-slider v-model="points"
+                          min="1"
+                          max="40"
+                          append-icon="mdi-arrow-up-bold"
+                          prepend-icon="mdi-arrow-down-bold"
+                          :label="pointString"></v-slider>
+                <v-btn color="action"
+                       @click="create">
+                    Create Task
+                </v-btn>
+            </v-form>
+            <h1>{{results}}</h1>
+        </v-container>
+    </v-content>
+</v-app>
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-router@3.1.3/dist/vue-router.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-firestore.js"></script>
+<script src="https://unpkg.com/vuefire@2.0.0-alpha.20/dist/vuefire.js"></script><!-- for use with firestore -->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script src="js/app-models.js"></script>
+<script>
+    let app = new Vue({
+        el: '#newTask',
+        vuetify: new Vuetify({
+            theme: {
+                themes: {
+                    light: {
+                        primary: '#ffa686',
+                        secondary: '#aa767c',
+                        action: '#a3fe82',
+                        background: '#63474d'
+                    }
+                }
+            }
+        }),
+        data: {
+            valid: true,
+            categories: ['Cardio', 'Flexibility', 'Strength'],
+            category: '',
+            details: '',
+            points: 1,
+            results: ''
+        },
+        methods: {
+            create(){
+                let task = new Task();
+                task.category = this.category;
+                task.details = this.details;
+                task.points = this.points;
+                let id = db.collection('tasks').doc()._firestoreClient.clientId;
+                task.id = id;
+                db.collection('tasks').doc(id).set(task);
+                this.results = 'Task Id: ' + id + ' - Has been added';
+            }
+        },
+        computed: {
+            pointString() {
+                return 'Points: ' + this.points;
+            }
+        },
+        watch: {}
+    });
+</script>
+
+</body>
+</html>

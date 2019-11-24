@@ -146,7 +146,7 @@ Vue.component('task', {
 
     // language=HTML
     template: `
-        <v-card max-width="350" min-width="250">
+        <v-card max-width="350" min-width="250" color="primary">
             <v-list-item three-line>
                 <v-list-item-content>
                     <div class="overline mb-4">Points: {{task.points}}</div>

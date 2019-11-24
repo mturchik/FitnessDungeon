@@ -5,10 +5,10 @@ let app = new Vue({
         theme: {
             themes: {
                 light: {
-                    primary: '#e9e27e',
-                    secondary: '#7889ff',
-                    action: '#f66259',
-                    background: '#7ad677'
+                    primary: '#ffa686',
+                    secondary: '#aa767c',
+                    action: '#a3fe82',
+                    background: '#63474d'
                 }
             }
         }
@@ -68,12 +68,12 @@ let app = new Vue({
                 })) {
                     let date = new Date();
                     //return a date that is 30 minutes in the future
-                    if (date.getMinutes() < 30) {
+                    if (date.getMinutes() < 50) {
                         //Add 30 minutes
-                        date.setMinutes(date.getMinutes() + 30);
+                        date.setMinutes(date.getMinutes() + 10);
                     } else {
                         //subtract 30 and then add an hour to get the proper minutes past the hour
-                        date.setMinutes(date.getMinutes() - 30);
+                        date.setMinutes(date.getMinutes() - 50);
                         date.setHours(date.getHours() + 1);
                     }
 

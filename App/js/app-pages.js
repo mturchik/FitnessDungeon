@@ -57,7 +57,9 @@ const DungeonPage = Vue.component('DungeonPage', {
     props: {},
     data() {
         return {
-            tasks: []
+            tasks: [],
+            snackbar: false,
+            timeout: 3000
         };
     },
     methods: {},
@@ -88,6 +90,9 @@ const DungeonPage = Vue.component('DungeonPage', {
                 });
             }
         });
+        bus.$on('snackbar', () => {
+            this.snackbar = true;
+        });
     },
     // language=HTML
     template: `
@@ -99,14 +104,68 @@ const DungeonPage = Vue.component('DungeonPage', {
                    lg="3">
                 <task :auth-user="authUser" :task="task"/>
             </v-col>
+            <v-snackbar v-if="authUser"
+                        v-model="snackbar"
+                        :timeout="timeout">
+                <h3>You have {{authUser.points}} points!</h3>
+                <v-btn color="blue"
+                       text
+                       @click="snackbar = false">Close
+                </v-btn>
+            </v-snackbar>
         </v-row>
     `
 });
 const LeaderBoardPage = Vue.component('LeaderBoardPage', {
-    props: {
-        authUser: {required: true},
+    mixins: [userMix],
+    props: {},
+    data() {
+        return {
+            headers: [
+                {text: 'Username', value: 'displayName'},
+                {text: 'Total Points', value: 'points'},
+                {text: 'Cardio', value: 'cardioPoints'},
+                {text: 'Strength', value: 'flexPoints'},
+                {text: 'Flexibility', value: 'strengthPoints'}
+            ],
+            users: []
+        };
     },
-    template: `<div>leaderboardPage</div>`
+    methods: {},
+    mounted() {
+        db.collection('users').onSnapshot(s => {
+            if (this.users.length === 0) {
+                s.docs.forEach(u => {
+                    let user = new User(null, u._document.proto);
+                    this.users.push(user);
+                });
+            } else {
+                s.docChanges().forEach(u => {
+                    if (u.type === 'modified') {
+                        let toUpd = new User(null, u.doc._document.proto);
+                        let exist = this.users.find(u => {
+                            return u.uid === toUpd.uid;
+                        });
+                        if (exist)
+                            this.users.splice(this.users.indexOf(exist), 1, toUpd);
+                    }
+                });
+            }
+        });
+    },
+    // language=HTML
+    template: `
+        <v-row>
+            <v-col>
+                <v-data-table :headers="headers"
+                              :items="users"
+                              :items-per-page="10"
+                              dense
+                              class="elevation-1 primary">
+                </v-data-table>
+            </v-col>
+        </v-row>
+    `
 });
 const ProfilePage = Vue.component('ProfilePage', {
     props: {

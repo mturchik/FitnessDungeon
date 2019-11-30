@@ -8,6 +8,7 @@ let app = new Vue({
                     primary: '#ffa686',
                     secondary: '#aa767c',
                     action: '#a3fe82',
+                    actionTwo: '#24ff8e',
                     background: '#63474d'
                 }
             }
@@ -41,6 +42,15 @@ let app = new Vue({
                 // User is signed in.
                 console.log('Signed in as: ', user.displayName);
                 this.authUser = new User(user);
+                //get db user value
+                db.collection('users').doc(user.uid).get().then(r => {
+                    if (r._document) {
+                        let dbUser = r._document.proto;
+                        this.authUser = new User(user, dbUser);
+                    } else {
+                        db.collection('users').doc(user.uid).set(this.authUser);
+                    }
+                });
             } else {
                 // User is signed out.
                 console.log('Not signed in.');
@@ -94,8 +104,25 @@ let app = new Vue({
                     let userOnTask = task.usersOnTask.find(u => {
                         return u.uid === this.authUser.uid
                     });
+                    //remove user from 'on task' status
                     task.usersOnTask.splice(task.usersOnTask.indexOf(userOnTask), 1);
                     db.collection('tasks').doc(task.id).set(task);
+                    //change local user.points value then update db version
+                    this.authUser.points += task.points;
+                    switch(task.category){
+                        case 'Cardio':
+                            this.authUser.cardioPoints += task.points;
+                            break;
+                        case 'Strength':
+                            this.authUser.strengthPoints += task.points;
+                            break;
+                        case 'Flexibility':
+                            this.authUser.flexPoints += task.points;
+                            break;
+                    }
+
+                    db.collection('users').doc(this.authUser.uid).set(this.authUser);
+                    bus.$emit('snackbar');
                 }
             }
         });

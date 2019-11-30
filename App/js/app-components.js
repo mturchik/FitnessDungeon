@@ -159,7 +159,7 @@ Vue.component('task', {
                        v-if="!userIsOnTask"
                        @click="startTask">Start Task
                 </v-btn>
-                <v-btn text color="action"
+                <v-btn text color="actionTwo"
                        v-if="userIsOnTask && canComplete"
                        @click="finishTask">Finish Task
                 </v-btn>

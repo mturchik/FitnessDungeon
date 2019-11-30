@@ -1,17 +1,31 @@
 // Models //////////////////////////////////////////////////////////////
-const User = function (firebaseUser) {
+const User = function (loginUser, firebaseUser) {
     let user = {
         displayName: '',
         uid: '',
         email: '',
-        photoURL: ''
+        photoURL: '',
+        cardioPoints: 0,
+        flexPoints: 0,
+        strengthPoints: 0
     };
+    //TODO: WE SHOULD ADD PROFILE DETAILS HERE
 
-    if (firebaseUser) {
-        user.displayName = firebaseUser.displayName ? firebaseUser.displayName : '';
-        user.uid = firebaseUser.uid ? firebaseUser.uid : '';
-        user.email = firebaseUser.email ? firebaseUser.email : '';
-        user.photoURL = firebaseUser.photoURL ? firebaseUser.photoURL : '';
+    if (loginUser) {
+        user.displayName = loginUser.displayName ? loginUser.displayName : '';
+        user.uid = loginUser.uid ? loginUser.uid : '';
+        user.email = loginUser.email ? loginUser.email : '';
+        user.photoURL = loginUser.photoURL ? loginUser.photoURL : '';
+    }
+    if(firebaseUser){
+        user.displayName = firebaseUser.fields.displayName ? firebaseUser.fields.displayName.stringValue : '';
+        user.uid = firebaseUser.fields.uid ? firebaseUser.fields.uid.stringValue : '';
+        user.email = firebaseUser.fields.email ? firebaseUser.fields.email.stringValue : '';
+        user.photoURL = firebaseUser.fields.photoURL ? firebaseUser.fields.photoURL.stringValue : '';
+        user.points = firebaseUser.fields.points ? parseInt(firebaseUser.fields.points.integerValue) : 0;
+        user.cardioPoints = firebaseUser.fields.cardioPoints ? parseInt(firebaseUser.fields.cardioPoints.integerValue) : 0;
+        user.flexPoints = firebaseUser.fields.flexPoints ? parseInt(firebaseUser.fields.flexPoints.integerValue) : 0;
+        user.strengthPoints = firebaseUser.fields.strengthPoints ? parseInt(firebaseUser.fields.strengthPoints.integerValue) : 0;
     }
 
     return user;
@@ -29,7 +43,7 @@ const Task = function (firebaseTask) {
         task.id = firebaseTask.name ? firebaseTask.name.substr(firebaseTask.name.lastIndexOf('/') + 1) : '';
         task.category = firebaseTask.fields.category ? firebaseTask.fields.category.stringValue : '';
         task.details = firebaseTask.fields.details ? firebaseTask.fields.details.stringValue : '';
-        task.points = firebaseTask.fields.points ? firebaseTask.fields.points.stringValue : '';
+        task.points = firebaseTask.fields.points ? parseInt(firebaseTask.fields.points.integerValue) : 0;
         //if the array exists, and there are values in it, add them
         if (firebaseTask.fields.usersOnTask && firebaseTask.fields.usersOnTask.arrayValue.values) {
             let users = [];

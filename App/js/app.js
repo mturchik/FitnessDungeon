@@ -7,8 +7,10 @@ let app = new Vue({
                 light: {
                     primary: '#ffa686',
                     secondary: '#aa767c',
+                    tertiary: '#f26080',
                     action: '#a3fe82',
-                    actionTwo: '#24ff8e',
+                    actionTwo: '#2ed3ff',
+                    gold: '#ffe424',
                     background: '#63474d'
                 }
             }
@@ -18,22 +20,7 @@ let app = new Vue({
     data: {
         authUser: null
     },
-    methods: {
-        //user login
-        login() {
-            let provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth()
-                .signInWithPopup(provider)
-                .catch(function (error) {
-                    alert("Wow, there was a log-in error here. Code: " + error.code +
-                        " | Your hand tailored error message: " + error.message);
-                });
-        },
-        //user logout
-        logout() {
-            firebase.auth().signOut();
-        }
-    },
+    methods: {},
     computed: {},
     created() {
         //User Authentication
@@ -51,6 +38,7 @@ let app = new Vue({
                         db.collection('users').doc(user.uid).set(this.authUser);
                     }
                 });
+                bus.$emit('routeChange', router.currentRoute.path);
             } else {
                 // User is signed out.
                 console.log('Not signed in.');
@@ -61,11 +49,17 @@ let app = new Vue({
     mounted() {
         //listener for login
         bus.$on('Login', () => {
-            this.login();
+            let provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth()
+                .signInWithPopup(provider)
+                .catch(function (error) {
+                    alert("Wow, there was a log-in error here. Code: " + error.code +
+                        " | Your hand tailored error message: " + error.message);
+                });
         });
         //listener for logout
         bus.$on('Logout', () => {
-            this.logout();
+            firebase.auth().signOut();
         });
     },
     watch: {}

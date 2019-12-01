@@ -132,7 +132,7 @@ const DungeonPage = Vue.component('DungeonPage', {
                     db.collection('tasks').doc(task.id).set(task);
                     //change local user.points value then update db version
                     this.authUser.points += task.points;
-                    switch(task.category){
+                    switch (task.category) {
                         case 'Cardio':
                             this.authUser.cardioPoints += task.points;
                             break;
@@ -173,13 +173,12 @@ const DungeonPage = Vue.component('DungeonPage', {
     `
 });
 const LeaderBoardPage = Vue.component('LeaderBoardPage', {
-    mixins: [userMix],
     props: {},
     data() {
         return {
             headers: [
                 {text: 'Username', value: 'displayName'},
-                {text: 'Total Points', value: 'points'},
+                {text: 'Current Points', value: 'points'},
                 {text: 'Cardio', value: 'cardioPoints'},
                 {text: 'Strength', value: 'flexPoints'},
                 {text: 'Flexibility', value: 'strengthPoints'}
@@ -224,10 +223,72 @@ const LeaderBoardPage = Vue.component('LeaderBoardPage', {
     `
 });
 const ProfilePage = Vue.component('ProfilePage', {
-    props: {
-        authUser: {required: true},
+    mixins: [userMix],
+    props: {},
+    data() {
+        return {
+            badges: [],
+        };
     },
-    template: `<div>profilePage</div>`
+    methods: {
+        userHasBought(badge) {
+            return badge.ownedByUsers.some(u => {
+                return u.uid === this.authUser.uid;
+            });
+        }
+    },
+    computed: {},
+    mounted() {
+        //populate from firebase
+        db.collection('badges').onSnapshot(s => {
+            if (this.badges.length === 0) {
+                s.docs.forEach(b => {
+                    let badge = new Badge(b._document.proto);
+                    if (this.userHasBought(badge))
+                        this.badges.push(badge);
+                });
+            } else {
+                s.docChanges().forEach(b => {
+                    if (b.type === 'modified') {
+                        let toUpd = new Badge(b.doc._document.proto);
+                        if (this.userHasBought(toUpd)) {
+                            let exist = this.badges.find(b => {
+                                return b.id === toUpd.id;
+                            });
+                            if (exist)
+                                this.badges.splice(this.badges.indexOf(exist), 1, toUpd);
+                            else
+                                this.badges.push(toUpd);
+                        }
+                    }
+                });
+            }
+        });
+    },
+    // language=HTML
+    template: `
+        <v-row>
+            <v-col cols="12" justify-self="center">
+                <v-toolbar color="primary"
+                           v-if="authUser"
+                           floating>
+                    <v-toolbar-title>{{authUser.displayName}}'s Profile</v-toolbar-title>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Badges: {{badges.length}}
+                    </v-chip>
+                </v-toolbar>
+            </v-col>
+            <v-col v-for="(badge, i) in badges"
+                   v-if="userHasBought(badge)"
+                   :key="i"
+                   cols="12"
+                   sm="4"
+                   lg="3">
+                <profileBadge :badge="badge" :auth-user="authUser"/>
+            </v-col>
+        </v-row>
+    `
 });
 const ForumPage = Vue.component('ForumPage', {
     props: {
@@ -240,10 +301,19 @@ const ShopPage = Vue.component('ShopPage', {
     props: {},
     data() {
         return {
-            badges: []
+            badges: [],
+            snackbar: false,
+            timeout: 3000
         };
     },
-    methods: {},
+    methods: {
+        userHasBought(badge) {
+            return badge.ownedByUsers.some(u => {
+                return u.uid === this.authUser.uid;
+            });
+        }
+    },
+    computed: {},
     mounted() {
         //populate from firebase
         db.collection('badges').onSnapshot(s => {
@@ -267,19 +337,50 @@ const ShopPage = Vue.component('ShopPage', {
         });
         //listener for buying a badge event
         bus.$on('buyBadge', (badge) => {
-            console.log('SOMEONE BUYIN DIS', badge);
+            if (!badge.ownedByUsers.some(u => {
+                return u.uid === this.authUser.uid;
+            })) {
+                badge.ownedByUsers.push({
+                    uid: this.authUser.uid,
+                    purchasedOn: new Date()
+                });
+                db.collection('badges').doc(badge.id).set(badge);
+                this.authUser.points -= badge.cost;
+                db.collection('users').doc(this.authUser.uid).set(this.authUser);
+            }
         });
     },
     // language=HTML
     template: `
         <v-row>
+            <v-col cols="12" justify-self="center">
+                <v-toolbar color="primary"
+                           v-if="authUser"
+                           floating>
+                    <v-toolbar-title>{{authUser.displayName}}'s Wallet Contains</v-toolbar-title>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Points: {{authUser.points}}
+                    </v-chip>
+                </v-toolbar>
+            </v-col>
             <v-col v-for="(badge, i) in badges"
+                   v-if="!userHasBought(badge)"
                    :key="i"
                    cols="12"
                    sm="4"
                    lg="3">
-                <badge :badge="badge" :disabled="userAlreadyBought" />
+                <storeBadge :badge="badge" :auth-user="authUser"/>
             </v-col>
+            <v-snackbar v-if="authUser"
+                        v-model="snackbar"
+                        :timeout="timeout">
+                <h1>You have {{authUser.points}} points remaining</h1>
+                <v-btn color="action"
+                       text
+                       @click="snackbar = false">Close
+                </v-btn>
+            </v-snackbar>
         </v-row>
     `
 });

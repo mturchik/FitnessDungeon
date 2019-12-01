@@ -20,5 +20,13 @@
     <orderEntry type="library" name="firebase-auth" level="application" />
     <orderEntry type="library" name="firebase-firestore" level="application" />
     <orderEntry type="library" name="axios" level="application" />
+    <orderEntry type="library" name="vue" level="application" />
+    <orderEntry type="library" name="vuetify" level="application" />
+    <orderEntry type="library" name="vue-router" level="application" />
+    <orderEntry type="library" name="firebase-app" level="application" />
+    <orderEntry type="library" name="firebase-auth" level="application" />
+    <orderEntry type="library" name="firebase-firestore" level="application" />
+    <orderEntry type="library" name="vuefire" level="application" />
+    <orderEntry type="library" name="axios" level="application" />
   </component>
 </module>

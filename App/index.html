@@ -13,18 +13,12 @@
 </head>
 <body>
 <v-app id="app">
-    <navigation :auth-user="authUser"></navigation>
     <v-content class="background">
         <v-container>
             <router-view :auth-user="authUser"></router-view>
         </v-container>
     </v-content>
-    <v-footer color="primary" app>
-        <div>
-            &copy; {{new Date().getFullYear()}}
-        </div>
-        <div class="flex-grow-1"></div>
-    </v-footer>
+    <navigation :auth-user="authUser"></navigation>
 </v-app>
 
 <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>NewTask</title>
+    <title>New Badge</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
@@ -78,10 +78,16 @@
                 badge.title = this.title;
                 badge.details = this.details;
                 badge.cost = this.cost;
-                let id = db.collection('badges').doc()._firestoreClient.clientId;
+                let id = db.collection('badges').doc().id;
                 badge.id = id;
                 db.collection('badges').doc(id).set(badge);
                 this.results = 'Badge Id: ' + id + ' - Has been added';
+                this.reset();
+            },
+            reset() {
+                this.title = '';
+                this.details = '';
+                this.cost = 1;
             }
         },
         computed: {

@@ -8,6 +8,9 @@ const userMix = {
         },
         logout() {
             bus.$emit('Logout');
+            router.push({path: '/home'}).then(r => {
+                bus.$emit('routeChange', r.path);
+            });
         }
     }
 };

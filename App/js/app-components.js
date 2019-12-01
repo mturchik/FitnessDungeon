@@ -1,104 +1,78 @@
 Vue.component('navigation', {
     mixins: [userMix],
-
+    data() {
+        return {
+            bottomNav: 0
+        }
+    },
+    computed: {},
+    mounted() {
+        bus.$on('routeChange', (path) => {
+            switch (path) {
+                case '/':
+                case '/home':
+                    this.bottomNav = 0;
+                    break;
+                case '/dungeon':
+                    this.bottomNav = 1;
+                    break;
+                case '/profile':
+                    this.bottomNav = 2;
+                    break;
+                case '/forum':
+                    this.bottomNav = 3;
+                    break;
+                case '/shop':
+                    this.bottomNav = 4;
+                    break;
+                case '/leaderBoard':
+                    this.bottomNav = 5;
+                    break;
+                default:
+                    this.bottomNav = 0;
+                    break;
+            }
+        })
+    },
     // language=HTML
     template: `
-        <v-app-bar color="primary" app dense>
-            <v-menu right bottom>
-                <template v-slot:activator="{ on: menu }">
-                    <v-tooltip bottom>
-                        <template v-slot:activator="{ on: tooltip }">
-                            <v-app-bar-nav-icon v-on="{ ...tooltip, ...menu }"></v-app-bar-nav-icon>
-                        </template>
-                        <span>Navigation</span>
-                    </v-tooltip>
-                </template>
-                <v-divider></v-divider>
-                <v-list dense
-                        rounded>
-                    <v-list-item>
-                        <v-list-item-content>
-                            <v-list-item-title>
-                                Fitness Dungeon
-                            </v-list-item-title>
-                            <v-list-item-subtitle>
-                                Get Fit Or Die Trying
-                            </v-list-item-subtitle>
-                        </v-list-item-content>
-                    </v-list-item>
-                    <router-link to="/home" tag="v-list-item">
-                        <v-list-item-icon>
-                            <v-icon>mdi-home</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                            <v-list-item-title>Home</v-list-item-title>
-                        </v-list-item-content>
-                    </router-link>
-                    <router-link to="/dungeon" tag="v-list-item">
-                        <v-list-item-icon>
-                            <v-icon>mdi-castle</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                            <v-list-item-title>Dungeon</v-list-item-title>
-                        </v-list-item-content>
-                    </router-link>
-                    <router-link to="/leaderBoard" tag="v-list-item">
-                        <v-list-item-icon>
-                            <v-icon>mdi-bulletin-board</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                            <v-list-item-title>Leaderboard</v-list-item-title>
-                        </v-list-item-content>
-                    </router-link>
-                    <router-link to="/profile" tag="v-list-item">
-                        <v-list-item-icon>
-                            <v-icon>mdi-face-profile</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                            <v-list-item-title>Profile</v-list-item-title>
-                        </v-list-item-content>
-                    </router-link>
-                    <router-link to="/forum" tag="v-list-item">
-                        <v-list-item-icon>
-                            <v-icon>mdi-forum</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                            <v-list-item-title>Forum</v-list-item-title>
-                        </v-list-item-content>
-                    </router-link>
-                    <router-link to="/shop" tag="v-list-item">
-                        <v-list-item-icon>
-                            <v-icon>mdi-basket</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                            <v-list-item-title>Shop</v-list-item-title>
-                        </v-list-item-content>
-                    </router-link>
-                </v-list>
-            </v-menu>
-            <v-toolbar-title>Fit-Livion</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-tooltip left v-if="authUser">
-                <template v-slot:activator="{ on: tooltip }">
-                    <v-avatar class="mr-4" size="36" v-on="tooltip">
-                        <v-img :src="authUser.photoURL"
-                               class="d-none d-sm-flex"
-                               alt="avatar"/>
-                    </v-avatar>
-                </template>
-                <span>{{authUser.displayName}}</span>
-            </v-tooltip>
-            <v-btn @click.prevent="logout"
-                   color="action"
-                   class="ml-2"
-                   v-if="authUser">Log Out
+        <v-bottom-navigation background-color="primary"
+                             v-model="bottomNav"
+                             mandatory>
+            <router-link to="/home" tag="v-btn">
+                <span>Home</span>
+                <v-icon>mdi-home</v-icon>
+            </router-link>
+            <router-link to="/dungeon" tag="v-btn" :disabled="!authUser">
+                <span>Dungeon</span>
+                <v-icon>mdi-castle</v-icon>
+            </router-link>
+            <router-link to="/profile" tag="v-btn" :disabled="!authUser">
+                <span>Profile</span>
+                <v-icon>mdi-face-profile</v-icon>
+            </router-link>
+            <router-link to="/forum" tag="v-btn" :disabled="!authUser">
+                <span>Forum</span>
+                <v-icon>mdi-forum</v-icon>
+            </router-link>
+            <router-link to="/shop" tag="v-btn" :disabled="!authUser">
+                <span>Shop</span>
+                <v-icon>mdi-basket</v-icon>
+            </router-link>
+            <router-link to="/leaderBoard" tag="v-btn">
+                <span>LeaderBoard</span>
+                <v-icon>mdi-bulletin-board</v-icon>
+            </router-link>
+
+            <v-btn v-if="authUser" @click="logout">
+                <span>Log Out</span>
+                <v-icon>mdi-account-off-outline</v-icon>
             </v-btn>
-            <v-btn @click.prevent="login"
-                   color="action"
-                   class="ml-2"
-                   v-else>Log In
+            <v-btn v-else @click="login">
+                <span>Log In</span>
+                <v-icon>mdi-account-plus</v-icon>
             </v-btn>
-        </v-app-bar>
+        </v-bottom-navigation>
     `,
 });
 Vue.component('task', {
@@ -171,8 +145,8 @@ Vue.component('task', {
         </v-card>
     `
 });
-Vue.component('badge', {
-    //mixins: [userMix],
+Vue.component('storeBadge', {
+    mixins: [userMix],
     props: {
         badge: {required: true},
         disabled: {}
@@ -182,11 +156,28 @@ Vue.component('badge', {
             bus.$emit('buyBadge', this.badge);
         }
     },
-    computed: {},
+    computed: {
+        userHasBought() {
+            return this.badge.ownedByUsers.some(u => {
+                return u.uid === this.authUser.uid;
+            });
+        },
+        calcColor() {
+            if (this.userHasBought)
+                return 'tertiary';
+            if (this.userCanAfford)
+                return 'actionTwo';
+
+            return 'primary';
+        },
+        userCanAfford() {
+            return this.authUser.points >= this.badge.cost;
+        }
+    },
 
     // language=HTML
     template: `
-        <v-card max-width="350" min-width="250" color="primary" :disabled="disabled">
+        <v-card max-width="350" min-width="250" :color="calcColor" :disabled="userHasBought">
             <v-list-item three-line>
                 <v-list-item-content>
                     <div class="overline mb-4">Cost: {{badge.cost}} points</div>
@@ -195,7 +186,59 @@ Vue.component('badge', {
                 </v-list-item-content>
             </v-list-item>
             <v-card-actions>
-                <v-btn text color="action"
+                <v-btn text
+                       color="action"
+                       :disabled="!userCanAfford"
+                       @click="buyBadge">Buy Badge
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    `
+});
+Vue.component('profileBadge', {
+    mixins: [userMix],
+    props: {
+        badge: {required: true},
+        disabled: {}
+    },
+    methods: {
+        buyBadge() {
+            bus.$emit('buyBadge', this.badge);
+        }
+    },
+    computed: {
+        userHasBought() {
+            return this.badge.ownedByUsers.some(u => {
+                return u.uid === this.authUser.uid;
+            });
+        },
+        calcColor() {
+            if (this.userHasBought)
+                return 'tertiary';
+            if (this.userCanAfford)
+                return 'actionTwo';
+
+            return 'primary';
+        },
+        userCanAfford() {
+            return this.authUser.points >= this.badge.cost;
+        }
+    },
+
+    // language=HTML
+    template: `
+        <v-card max-width="350" min-width="250" :color="calcColor" :disabled="userHasBought">
+            <v-list-item three-line>
+                <v-list-item-content>
+                    <div class="overline mb-4">Cost: {{badge.cost}} points</div>
+                    <v-list-item-title class="headline mb-1">{{badge.title}}</v-list-item-title>
+                    <v-list-item-subtitle>Details: {{badge.details}}</v-list-item-subtitle>
+                </v-list-item-content>
+            </v-list-item>
+            <v-card-actions>
+                <v-btn text
+                       color="action"
+                       :disabled="!userCanAfford"
                        @click="buyBadge">Buy Badge
                 </v-btn>
             </v-card-actions>

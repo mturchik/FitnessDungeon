@@ -90,8 +90,64 @@ const DungeonPage = Vue.component('DungeonPage', {
                 });
             }
         });
-        bus.$on('snackbar', () => {
-            this.snackbar = true;
+        //listener for start task
+        bus.$on('startTask', (task) => {
+            if (this.authUser) {
+                if (!task.usersOnTask)
+                    task.usersOnTask = [];
+                //check if user on task
+                if (!task.usersOnTask.some(u => {
+                    return u.uid === this.authUser.uid
+                })) {
+                    let date = new Date();
+                    //return a date that is 30 minutes in the future
+                    if (date.getMinutes() < 50) {
+                        //Add 30 minutes
+                        date.setMinutes(date.getMinutes() + 10);
+                    } else {
+                        //subtract 30 and then add an hour to get the proper minutes past the hour
+                        date.setMinutes(date.getMinutes() - 50);
+                        date.setHours(date.getHours() + 1);
+                    }
+
+                    task.usersOnTask.push({uid: this.authUser.uid, canComplete: date});
+                    db.collection('tasks').doc(task.id).set(task);
+                }
+            }
+        });
+        //listener for finish task
+        bus.$on('finishTask', (task) => {
+            if (this.authUser) {
+                if (!task.usersOnTask)
+                    task.usersOnTask = [];
+                //check if user on task
+                if (task.usersOnTask.some(u => {
+                    return u.uid === this.authUser.uid
+                })) {
+                    let userOnTask = task.usersOnTask.find(u => {
+                        return u.uid === this.authUser.uid
+                    });
+                    //remove user from 'on task' status
+                    task.usersOnTask.splice(task.usersOnTask.indexOf(userOnTask), 1);
+                    db.collection('tasks').doc(task.id).set(task);
+                    //change local user.points value then update db version
+                    this.authUser.points += task.points;
+                    switch(task.category){
+                        case 'Cardio':
+                            this.authUser.cardioPoints += task.points;
+                            break;
+                        case 'Strength':
+                            this.authUser.strengthPoints += task.points;
+                            break;
+                        case 'Flexibility':
+                            this.authUser.flexPoints += task.points;
+                            break;
+                    }
+
+                    db.collection('users').doc(this.authUser.uid).set(this.authUser);
+                    this.snackbar = true;
+                }
+            }
         });
     },
     // language=HTML
@@ -107,8 +163,8 @@ const DungeonPage = Vue.component('DungeonPage', {
             <v-snackbar v-if="authUser"
                         v-model="snackbar"
                         :timeout="timeout">
-                <h3>You have {{authUser.points}} points!</h3>
-                <v-btn color="blue"
+                <h1>You have {{authUser.points}} total points!</h1>
+                <v-btn color="action"
                        text
                        @click="snackbar = false">Close
                 </v-btn>
@@ -180,10 +236,52 @@ const ForumPage = Vue.component('ForumPage', {
     template: `<div>forumPage</div>`
 });
 const ShopPage = Vue.component('ShopPage', {
-    props: {
-        authUser: {required: true},
+    mixins: [userMix],
+    props: {},
+    data() {
+        return {
+            badges: []
+        };
     },
-    template: `<div>shopPage</div>`
+    methods: {},
+    mounted() {
+        //populate from firebase
+        db.collection('badges').onSnapshot(s => {
+            if (this.badges.length === 0) {
+                s.docs.forEach(b => {
+                    let badge = new Badge(b._document.proto);
+                    this.badges.push(badge);
+                });
+            } else {
+                s.docChanges().forEach(b => {
+                    if (b.type === 'modified') {
+                        let toUpd = new Badge(b.doc._document.proto);
+                        let exist = this.badges.find(b => {
+                            return b.id === toUpd.id;
+                        });
+                        if (exist)
+                            this.badges.splice(this.badges.indexOf(exist), 1, toUpd);
+                    }
+                });
+            }
+        });
+        //listener for buying a badge event
+        bus.$on('buyBadge', (badge) => {
+            console.log('SOMEONE BUYIN DIS', badge);
+        });
+    },
+    // language=HTML
+    template: `
+        <v-row>
+            <v-col v-for="(badge, i) in badges"
+                   :key="i"
+                   cols="12"
+                   sm="4"
+                   lg="3">
+                <badge :badge="badge" :disabled="userAlreadyBought" />
+            </v-col>
+        </v-row>
+    `
 });
 
 

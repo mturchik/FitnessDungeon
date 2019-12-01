@@ -62,6 +62,38 @@ const Task = function (firebaseTask) {
 
     return task;
 };
+const Badge = function (firebaseBadge){
+    let badge = {
+        id: '',
+        title: '',
+        details: '',
+        cost: 0,
+        ownedByUsers: []
+    };
+
+    if(firebaseBadge){
+        badge.id = firebaseBadge.name ? firebaseBadge.name.substr(firebaseBadge.name.lastIndexOf('/') + 1) : '';
+        badge.title = firebaseBadge.fields.title ? firebaseBadge.fields.title.stringValue : '';
+        badge.details = firebaseBadge.fields.details ? firebaseBadge.fields.details.stringValue : '';
+        badge.cost = firebaseBadge.fields.cost ? parseInt(firebaseBadge.fields.cost.integerValue) : 0;
+        //if the array exists, and there are values in it, add them
+        if (firebaseBadge.fields.ownedByUsers && firebaseBadge.fields.ownedByUsers.arrayValue.values) {
+            let users = [];
+            firebaseBadge.fields.ownedByUsers.arrayValue.values.forEach(v => {
+                let map = v.mapValue.fields;
+                let user = {
+                    uid: map.uid.stringValue,
+                    purchasedOn: new Date(map.purchasedOn.timestampValue)
+                };
+                users.push(user);
+            });
+            badge.ownedByUsers = users;
+        } else //or blank it out!
+            badge.ownedByUsers = [];
+    }
+
+    return badge;
+};
 ////////////////////////////////////////////////////////////////////////
 //Firebase Config
 const firebaseConfig = {

@@ -171,3 +171,34 @@ Vue.component('task', {
         </v-card>
     `
 });
+Vue.component('badge', {
+    //mixins: [userMix],
+    props: {
+        badge: {required: true},
+        disabled: {}
+    },
+    methods: {
+        buyBadge() {
+            bus.$emit('buyBadge', this.badge);
+        }
+    },
+    computed: {},
+
+    // language=HTML
+    template: `
+        <v-card max-width="350" min-width="250" color="primary" :disabled="disabled">
+            <v-list-item three-line>
+                <v-list-item-content>
+                    <div class="overline mb-4">Cost: {{badge.cost}} points</div>
+                    <v-list-item-title class="headline mb-1">{{badge.title}}</v-list-item-title>
+                    <v-list-item-subtitle>Details: {{badge.details}}</v-list-item-subtitle>
+                </v-list-item-content>
+            </v-list-item>
+            <v-card-actions>
+                <v-btn text color="action"
+                       @click="buyBadge">Buy Badge
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    `
+});

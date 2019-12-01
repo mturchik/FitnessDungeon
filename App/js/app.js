@@ -39,6 +39,8 @@ let app = new Vue({
                     }
                 });
                 bus.$emit('routeChange', router.currentRoute.path);
+                let message = this.authUser.displayName + ' has logged in.';
+                bus.$emit('snackbar', message);
             } else {
                 // User is signed out.
                 console.log('Not signed in.');
@@ -59,6 +61,8 @@ let app = new Vue({
         });
         //listener for logout
         bus.$on('Logout', () => {
+            let message = this.authUser.displayName + ' is logging out.';
+            bus.$emit('snackbar', message);
             firebase.auth().signOut();
         });
     },

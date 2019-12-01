@@ -171,8 +171,8 @@ const LeaderBoardPage = Vue.component('LeaderBoardPage', {
     data() {
         return {
             headers: [
-                {text: 'Username', value: 'displayName'},
                 {text: 'Current Points', value: 'points'},
+                {text: 'Username', value: 'displayName'},
                 {text: 'Cardio', value: 'cardioPoints'},
                 {text: 'Strength', value: 'flexPoints'},
                 {text: 'Flexibility', value: 'strengthPoints'}
@@ -209,6 +209,9 @@ const LeaderBoardPage = Vue.component('LeaderBoardPage', {
                 <v-data-table :headers="headers"
                               :items="users"
                               :items-per-page="10"
+                              must-sort
+                              :sort-by="['points']"
+                              :sort-desc="[true]"<!--REMOVE IF THIS IS ACTUALLY INVERTED, IDK WE ONLY HAVE ONE USER!-->
                               dense
                               class="elevation-1 primary">
                 </v-data-table>
@@ -339,6 +342,8 @@ const ShopPage = Vue.component('ShopPage', {
                 db.collection('badges').doc(badge.id).set(badge);
                 this.authUser.points -= badge.cost;
                 db.collection('users').doc(this.authUser.uid).set(this.authUser);
+                let message = this.authUser.displayName + ' has a new badge!';
+                bus.$emit('snackbar', message);
             }
         });
     },

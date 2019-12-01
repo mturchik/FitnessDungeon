@@ -38,6 +38,8 @@ Vue.component('navigation', {
     template: `
         <v-bottom-navigation background-color="primary"
                              v-model="bottomNav"
+                             app
+                             absolute
                              mandatory>
             <router-link to="/home" tag="v-btn">
                 <span>Home</span>
@@ -250,22 +252,28 @@ Vue.component('snack', {
     data() {
         return {
             snackbar: false,
-            timeout: 50000,
+            timeout: 5000,
             message: ''
         }
     },
-    methods: {},
+    methods: {
+        reset() {
+            this.message = '';
+            this.snackbar = false;
+        }
+    },
     watch: {
         snackbar: function (newVal) {
             if (!newVal) {
-                this.message = '';
+                this.reset();
             }
         }
     },
     mounted() {
         bus.$on('snackbar', (message) => {
-           this.message = message;
-           this.snackbar = true;
+            this.reset();
+            this.message = message;
+            this.snackbar = true;
         });
     },
 

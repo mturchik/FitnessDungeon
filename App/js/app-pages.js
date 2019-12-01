@@ -101,17 +101,19 @@ const DungeonPage = Vue.component('DungeonPage', {
                 })) {
                     let date = new Date();
                     //return a date that is 30 minutes in the future
-                    if (date.getMinutes() < 50) {
-                        //Add 30 minutes
-                        date.setMinutes(date.getMinutes() + 10);
-                    } else {
-                        //subtract 30 and then add an hour to get the proper minutes past the hour
-                        date.setMinutes(date.getMinutes() - 50);
-                        date.setHours(date.getHours() + 1);
-                    }
+                    // if (date.getMinutes() < 50) {
+                    //     //Add 30 minutes
+                    //     date.setMinutes(date.getMinutes() + 10);
+                    // } else {
+                    //     //subtract 30 and then add an hour to get the proper minutes past the hour
+                    //     date.setMinutes(date.getMinutes() - 50);
+                    //     date.setHours(date.getHours() + 1);
+                    // }
 
                     task.usersOnTask.push({uid: this.authUser.uid, canComplete: date});
                     db.collection('tasks').doc(task.id).set(task);
+                    let message = 'Task started: ' + task.details;
+                    bus.$emit('snackbar', message);
                 }
             }
         });
@@ -145,7 +147,8 @@ const DungeonPage = Vue.component('DungeonPage', {
                     }
 
                     db.collection('users').doc(this.authUser.uid).set(this.authUser);
-                    this.snackbar = true;
+                    let message = 'You have ' + this.authUser.points + ' points!';
+                    bus.$emit('snackbar', message);
                 }
             }
         });
@@ -160,15 +163,6 @@ const DungeonPage = Vue.component('DungeonPage', {
                    lg="3">
                 <task :auth-user="authUser" :task="task"/>
             </v-col>
-            <v-snackbar v-if="authUser"
-                        v-model="snackbar"
-                        :timeout="timeout">
-                <h1>You have {{authUser.points}} total points!</h1>
-                <v-btn color="action"
-                       text
-                       @click="snackbar = false">Close
-                </v-btn>
-            </v-snackbar>
         </v-row>
     `
 });
@@ -337,9 +331,7 @@ const ShopPage = Vue.component('ShopPage', {
         });
         //listener for buying a badge event
         bus.$on('buyBadge', (badge) => {
-            if (!badge.ownedByUsers.some(u => {
-                return u.uid === this.authUser.uid;
-            })) {
+            if (!this.userHasBought(badge)) {
                 badge.ownedByUsers.push({
                     uid: this.authUser.uid,
                     purchasedOn: new Date()

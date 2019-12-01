@@ -245,3 +245,41 @@ Vue.component('profileBadge', {
         </v-card>
     `
 });
+Vue.component('snack', {
+    props: {},
+    data() {
+        return {
+            snackbar: false,
+            timeout: 50000,
+            message: ''
+        }
+    },
+    methods: {},
+    watch: {
+        snackbar: function (newVal) {
+            if (!newVal) {
+                this.message = '';
+            }
+        }
+    },
+    mounted() {
+        bus.$on('snackbar', (message) => {
+           this.message = message;
+           this.snackbar = true;
+        });
+    },
+
+    // language=HTML
+    template: `
+        <v-snackbar bottom
+                    absolute
+                    v-model="snackbar"
+                    :timeout="timeout">
+            <h1>{{message}}</h1>
+            <v-btn color="action"
+                   text
+                   @click="snackbar = false">Close
+            </v-btn>
+        </v-snackbar>
+    `
+});

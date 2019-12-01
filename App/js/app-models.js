@@ -5,6 +5,7 @@ const User = function (loginUser, firebaseUser) {
         uid: '',
         email: '',
         photoURL: '',
+        points: 0,
         cardioPoints: 0,
         flexPoints: 0,
         strengthPoints: 0

@@ -1,8 +1,6 @@
 const HomePage = Vue.component('HomePage', {
     mixins: [userMix],
-
     props: {},
-
     methods: {},
 
     // language=HTML
@@ -63,7 +61,7 @@ const DungeonPage = Vue.component('DungeonPage', {
         };
     },
     methods: {},
-    mounted() {
+    created() {
         //Update local task array with FireBase data
         db.collection('tasks').onSnapshot(s => {
             //if first time
@@ -90,6 +88,8 @@ const DungeonPage = Vue.component('DungeonPage', {
                 });
             }
         });
+    },
+    mounted() {
         //listener for start task
         bus.$on('startTask', (task) => {
             if (this.authUser) {
@@ -171,17 +171,20 @@ const LeaderBoardPage = Vue.component('LeaderBoardPage', {
     data() {
         return {
             headers: [
-                {text: 'Current Points', value: 'points'},
                 {text: 'Username', value: 'displayName'},
+                {text: 'Current Points', value: 'points'},
                 {text: 'Cardio', value: 'cardioPoints'},
                 {text: 'Strength', value: 'flexPoints'},
-                {text: 'Flexibility', value: 'strengthPoints'}
+                {text: 'Flexibility', value: 'strengthPoints'},
+                {text: 'Up-Votes', value: 'upVotes'},
+                {text: 'Down-Votes', value: 'downVotes'}
             ],
             users: []
         };
     },
     methods: {},
-    mounted() {
+    created() {
+        //populate from firebase
         db.collection('users').onSnapshot(s => {
             if (this.users.length === 0) {
                 s.docs.forEach(u => {
@@ -211,8 +214,7 @@ const LeaderBoardPage = Vue.component('LeaderBoardPage', {
                               :items-per-page="10"
                               must-sort
                               :sort-by="['points']"
-                              :sort-desc="[true]"<!--REMOVE IF THIS IS ACTUALLY INVERTED, IDK WE ONLY HAVE ONE USER!-->
-                              dense
+                              :sort-desc="[true]"
                               class="elevation-1 primary">
                 </v-data-table>
             </v-col>
@@ -235,7 +237,7 @@ const ProfilePage = Vue.component('ProfilePage', {
         }
     },
     computed: {},
-    mounted() {
+    created() {
         //populate from firebase
         db.collection('badges').onSnapshot(s => {
             if (this.badges.length === 0) {
@@ -262,6 +264,8 @@ const ProfilePage = Vue.component('ProfilePage', {
             }
         });
     },
+    mounted() {
+    },
     // language=HTML
     template: `
         <v-row>
@@ -273,6 +277,14 @@ const ProfilePage = Vue.component('ProfilePage', {
                     <v-chip color="gold"
                             class="ml-4">
                         Badges: {{badges.length}}
+                    </v-chip>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Up-Votes: {{authUser.upVotes}}
+                    </v-chip>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Down-Votes: {{authUser.downVotes}}
                     </v-chip>
                 </v-toolbar>
             </v-col>
@@ -288,19 +300,102 @@ const ProfilePage = Vue.component('ProfilePage', {
     `
 });
 const ForumPage = Vue.component('ForumPage', {
-    props: {
-        authUser: {required: true},
+    mixins: [userMix],
+    props: {},
+    data() {
+        return {
+            posts: [],
+            filteredByPostId: ''
+        };
     },
-    template: `<div>forumPage</div>`
+    methods: {},
+    computed: {},
+    created() {
+        //populate from firebase
+        db.collection('posts').onSnapshot(s => {
+            //loop through all docs
+            s.docs.forEach(p => {
+                if (p._document.proto) {
+                    let post = new Post(p._document.proto);
+                    if (!this.posts.some(p => {
+                        return p.id === post.id;
+                    }))
+                        this.posts.push(post);
+                }
+            });
+            //check for altered posts in snapshot
+            s.docChanges().forEach(b => {
+                if (b.type === 'modified') {
+                    let toUpd = new Post(b.doc._document.proto);
+                    let exist = this.posts.find(p => {
+                        return p.id === toUpd.id;
+                    });
+                    if (exist)
+                        this.posts.splice(this.posts.indexOf(exist), 1, toUpd);
+                }
+            });
+            //attempting to sort by liked!
+            this.posts.sort((a, b) => {
+                return b.likes - a.likes;
+            });
+        });
+    },
+    mounted() {
+        //listener for a new post
+        bus.$on('newPost', (post) => {
+            post.id = db.collection('posts').doc().id;
+            db.collection('posts').doc(post.id).set(post);
+            console.log('posted post', post);
+            bus.$emit('snackbar', 'You just made a new post!');
+        });
+        //listener for up votes on posts
+        bus.$on('upVote', (post) => {
+            post.likes += 1;
+            db.collection('posts')
+                .doc(post.id)
+                .set(post);
+            this.authUser.upVotes += 1;
+            db.collection('users')
+                .doc(post.posterUid)
+                .update({upVotes: firebase.firestore.FieldValue.increment(1)});
+        });
+        //listener for down votes on posts
+        bus.$on('downVote', (post) => {
+            post.dislikes += 1;
+            db.collection('posts')
+                .doc(post.id)
+                .set(post);
+            this.authUser.downVotes += 1;
+            db.collection('users')
+                .doc(post.posterUid)
+                .update({downVotes: firebase.firestore.FieldValue.increment(1)});
+        });
+    },
+    // language=HTML
+    template: `
+        <v-row v-if="authUser">
+            <v-col cols="12" justify-self="center">
+                <v-toolbar color="primary"
+                           v-if="authUser">
+                    <v-toolbar-title>Fitness Forum</v-toolbar-title>
+                </v-toolbar>
+            </v-col>
+            <v-col cols="12"
+                   v-for="(post, i) in posts"
+                   :key="i"
+                   justify-self="center">
+                <post :post="post"/>
+            </v-col>
+            <postMaker :auth-user="authUser"></postMaker>
+        </v-row>
+    `
 });
 const ShopPage = Vue.component('ShopPage', {
     mixins: [userMix],
     props: {},
     data() {
         return {
-            badges: [],
-            snackbar: false,
-            timeout: 3000
+            badges: []
         };
     },
     methods: {
@@ -311,7 +406,7 @@ const ShopPage = Vue.component('ShopPage', {
         }
     },
     computed: {},
-    mounted() {
+    created() {
         //populate from firebase
         db.collection('badges').onSnapshot(s => {
             if (this.badges.length === 0) {
@@ -332,6 +427,8 @@ const ShopPage = Vue.component('ShopPage', {
                 });
             }
         });
+    },
+    mounted() {
         //listener for buying a badge event
         bus.$on('buyBadge', (badge) => {
             if (!this.userHasBought(badge)) {
@@ -341,8 +438,10 @@ const ShopPage = Vue.component('ShopPage', {
                 });
                 db.collection('badges').doc(badge.id).set(badge);
                 this.authUser.points -= badge.cost;
-                db.collection('users').doc(this.authUser.uid).set(this.authUser);
-                let message = this.authUser.displayName + ' has a new badge!';
+                db.collection('users')
+                    .doc(this.authUser.uid)
+                    .update({points: firebase.firestore.FieldValue.increment(badge.cost * -1)});
+                let message = this.authUser.displayName + ' now has [ ' + badge.title + ' ] !';
                 bus.$emit('snackbar', message);
             }
         });
@@ -369,19 +468,9 @@ const ShopPage = Vue.component('ShopPage', {
                    lg="3">
                 <storeBadge :badge="badge" :auth-user="authUser"/>
             </v-col>
-            <v-snackbar v-if="authUser"
-                        v-model="snackbar"
-                        :timeout="timeout">
-                <h1>You have {{authUser.points}} points remaining</h1>
-                <v-btn color="action"
-                       text
-                       @click="snackbar = false">Close
-                </v-btn>
-            </v-snackbar>
         </v-row>
     `
 });
-
 
 //======================================================================================================================
 

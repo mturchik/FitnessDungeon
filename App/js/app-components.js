@@ -1,3 +1,4 @@
+//Misc Components
 Vue.component('navigation', {
     mixins: [userMix],
     data() {
@@ -39,7 +40,6 @@ Vue.component('navigation', {
         <v-bottom-navigation background-color="primary"
                              v-model="bottomNav"
                              app
-                             absolute
                              mandatory>
             <router-link to="/home" tag="v-btn">
                 <span>Home</span>
@@ -77,6 +77,51 @@ Vue.component('navigation', {
         </v-bottom-navigation>
     `,
 });
+Vue.component('snack', {
+    props: {},
+    data() {
+        return {
+            snackbar: false,
+            timeout: 5000,
+            message: ''
+        }
+    },
+    methods: {
+        reset() {
+            this.message = '';
+            this.snackbar = false;
+        }
+    },
+    watch: {
+        snackbar: function (newVal) {
+            if (!newVal) {
+                this.reset();
+            }
+        }
+    },
+    mounted() {
+        bus.$on('snackbar', (message) => {
+            this.reset();
+            this.message = message;
+            this.snackbar = true;
+        });
+    },
+
+    // language=HTML
+    template: `
+        <v-snackbar bottom
+                    class="mb-12"
+                    v-model="snackbar"
+                    :timeout="timeout">
+            <h1>{{message}}</h1>
+            <v-btn color="action"
+                   text
+                   @click="snackbar = false">Close
+            </v-btn>
+        </v-snackbar>
+    `
+});
+//Task Components
 Vue.component('task', {
     mixins: [userMix],
     props: {
@@ -147,6 +192,7 @@ Vue.component('task', {
         </v-card>
     `
 });
+//Badge Components
 Vue.component('storeBadge', {
     mixins: [userMix],
     props: {
@@ -247,47 +293,171 @@ Vue.component('profileBadge', {
         </v-card>
     `
 });
-Vue.component('snack', {
-    props: {},
+//Post Components
+Vue.component('postMaker', {
+    mixins: [userMix],
+    props: {
+        parentPostId: {required: false}
+    },
     data() {
         return {
-            snackbar: false,
-            timeout: 5000,
-            message: ''
+            subject: '',
+            content: '',
+            valid: false,
+            rules: [
+                v => !!v || 'Required',
+                v => v.length >= 10 || 'Must be more than 10 characters',
+                v => v.length <= 100 || 'Must be less than 100 characters',
+            ],
+            dialog: false
         }
     },
     methods: {
-        reset() {
-            this.message = '';
-            this.snackbar = false;
+        close() {
+            this.dialog = false;
+            this.subject = '';
+            this.content = '';
+            this.$refs.newPost.resetValidation();
+        },
+        post() {
+            let post = new Post();
+            if (this.parentPostId)
+                post.parentPostId = this.parentPostId;
+            post.posterUid = this.authUser.uid;
+            post.posterAvatar = this.authUser.photoURL;
+            post.posterName = this.authUser.displayName;
+            post.subject = this.subject;
+            post.content = this.content;
+            post.datePosted = new Date();
+            bus.$emit('newPost', post);
+            this.close();
         }
     },
-    watch: {
-        snackbar: function (newVal) {
-            if (!newVal) {
-                this.reset();
-            }
-        }
-    },
+    watch: {},
     mounted() {
-        bus.$on('snackbar', (message) => {
-            this.reset();
-            this.message = message;
-            this.snackbar = true;
-        });
     },
-
     // language=HTML
     template: `
-        <v-snackbar bottom
-                    absolute
-                    v-model="snackbar"
-                    :timeout="timeout">
-            <h1>{{message}}</h1>
-            <v-btn color="action"
-                   text
-                   @click="snackbar = false">Close
-            </v-btn>
-        </v-snackbar>
+        <v-dialog v-model="dialog"
+                  persistent max-width="600px">
+            <template v-slot:activator="{ on }">
+                <v-btn icon
+                       fab
+                       v-on="on"
+                       bottom
+                       class="primary mb-12 ml-2"
+                       color="actionTwo"
+                       fixed
+                       elevation="12"
+                       ripple>
+                    <v-icon>mdi-plus-thick</v-icon>
+                </v-btn>
+            </template>
+            <v-card color="primary">
+                <v-form v-model="valid" ref="newPost">
+                    <v-card-title class="mt-3">
+                        <span class="headline">New Forum Post</span>
+                    </v-card-title>
+                    <v-card-text>
+                        <v-container>
+                            <v-row>
+                                <v-col cols="12">
+                                    <v-text-field label="Subject"
+                                                  v-model="subject"
+                                                  :rules="rules"
+                                                  outlined
+                                                  placeholder="Witty hook here"
+                                                  required></v-text-field>
+                                </v-col>
+                                <v-col cols="12">
+                                    <v-textarea label="Content"
+                                                v-model="content"
+                                                :rules="rules"
+                                                outlined
+                                                counter
+                                                rows="2"
+                                                no-resize
+                                                placeholder="Some very intriguing content for other's consumption"
+                                                required></v-textarea>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="action" text @click="close">Cancel</v-btn>
+                        <v-btn color="action" text @click="post" :disabled="!valid">Post</v-btn>
+                    </v-card-actions>
+                </v-form>
+            </v-card>
+        </v-dialog>
+    `
+});
+Vue.component('post', {
+    props: {
+        post: {required: true}
+    },
+    methods: {
+        cutContent(s) {
+            if (s.length < 100) {
+                return s;
+            } else {
+                return s.substr(0, 97) + '...';
+            }
+        },
+        dateString(date) {
+            return date.toLocaleDateString();
+        },
+        upVote() {
+            bus.$emit('upVote', this.post);
+        },
+        downVote() {
+            bus.$emit('downVote', this.post);
+        }
+    },
+    // language=HTML
+    template: `
+        <v-container tag="v-card" class="primary">
+            <v-row no-gutters>
+                <v-col cols="11"
+                       tag="v-list-item"
+                       two-line>
+                    <v-list-item-avatar tile
+                                        size="80"
+                                        class="ml-6"
+                                        color="secondary">
+                        <v-img :src="post.posterAvatar"></v-img>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                        <div class="overline mb-4">Posted by {{post.posterName}} on {{dateString(post.datePosted)}}
+                        </div>
+                        <v-list-item-title class="headline mb-1">
+                            {{post.subject}}
+                        </v-list-item-title>
+                        <v-list-item-subtitle>
+                            {{cutContent(post.content)}}
+                        </v-list-item-subtitle>
+                    </v-list-item-content>
+                </v-col>
+                <v-col cols="1"
+                       tag="v-card-actions">
+                    <v-row class="flex-column ma-0 fill-height"
+                           justify="center">
+                        <v-col class="p-0 m-0">
+                            <v-btn text @click.prevent="upVote">
+                                <v-icon>mdi-thumb-up</v-icon>
+                                {{post.likes}}
+                            </v-btn>
+                        </v-col>
+                        <v-col class="p-0 m-0">
+                            <v-btn text @click.prevent="downVote">
+                                <v-icon>mdi-thumb-down</v-icon>
+                                {{post.dislikes}}
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </v-col>
+            </v-row>
+        </v-container>
     `
 });

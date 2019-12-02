@@ -8,7 +8,9 @@ const User = function (loginUser, firebaseUser) {
         points: 0,
         cardioPoints: 0,
         flexPoints: 0,
-        strengthPoints: 0
+        strengthPoints: 0,
+        upVotes: 0,
+        downVotes: 0
     };
     //TODO: WE SHOULD ADD PROFILE DETAILS HERE
 
@@ -27,6 +29,8 @@ const User = function (loginUser, firebaseUser) {
         user.cardioPoints = firebaseUser.fields.cardioPoints ? parseInt(firebaseUser.fields.cardioPoints.integerValue) : 0;
         user.flexPoints = firebaseUser.fields.flexPoints ? parseInt(firebaseUser.fields.flexPoints.integerValue) : 0;
         user.strengthPoints = firebaseUser.fields.strengthPoints ? parseInt(firebaseUser.fields.strengthPoints.integerValue) : 0;
+        user.upVotes = firebaseUser.fields.upVotes ? parseInt(firebaseUser.fields.upVotes.integerValue) : 0;
+        user.downVotes = firebaseUser.fields.downVotes ? parseInt(firebaseUser.fields.downVotes.integerValue) : 0;
     }
 
     return user;
@@ -94,6 +98,35 @@ const Badge = function (firebaseBadge){
     }
 
     return badge;
+};
+const Post = function (firebasePost){
+    let post = {
+        id: '',
+        posterUid: '',
+        posterAvatar: '',
+        posterName: '',
+        parentPostId: '',
+        subject: '',
+        content: '',
+        datePosted: '',
+        likes: 0,
+        dislikes: 0
+    };
+
+    if(firebasePost){
+        post.id = firebasePost.name ? firebasePost.name.substr(firebasePost.name.lastIndexOf('/') + 1) : '';
+        post.posterUid = firebasePost.fields.posterUid ? firebasePost.fields.posterUid.stringValue : '';
+        post.posterAvatar = firebasePost.fields.posterAvatar ? firebasePost.fields.posterAvatar.stringValue : '';
+        post.posterName = firebasePost.fields.posterName ? firebasePost.fields.posterName.stringValue : '';
+        post.parentPostId = firebasePost.fields.parentPostId ? firebasePost.fields.parentPostId.stringValue : '';
+        post.subject = firebasePost.fields.subject ? firebasePost.fields.subject.stringValue : '';
+        post.content = firebasePost.fields.content ? firebasePost.fields.content.stringValue : '';
+        post.datePosted = firebasePost.fields.datePosted ? new Date(firebasePost.fields.datePosted.timestampValue) : '';
+        post.likes = firebasePost.fields.likes ? parseInt(firebasePost.fields.likes.integerValue) : 0;
+        post.dislikes = firebasePost.fields.dislikes ? parseInt(firebasePost.fields.dislikes.integerValue) : 0;
+    }
+
+    return post;
 };
 ////////////////////////////////////////////////////////////////////////
 //Firebase Config

@@ -61,7 +61,6 @@ const HomePage = Vue.component('HomePage', {
                             </v-btn>
                         </v-row>
                 </v-card>
-            </v-container>
             <v-row dense>
                 <v-col v-for="(card, i) in cards"
                        :key="i"

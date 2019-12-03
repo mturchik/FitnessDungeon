@@ -19,6 +19,8 @@ let app = new Vue({
     router: router,
     data: {
         authUser: null
+
+
     },
     methods: {},
     computed: {},

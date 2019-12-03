@@ -1,53 +1,99 @@
 const HomePage = Vue.component('HomePage', {
     mixins: [userMix],
-    props: {},
+    data: () => ({
+        cards: [
+            {
+                title: 'How to Play',
+                info: 'Complete Tasks and earn points, go to the dungeon!',
+                src: 'img/howtoPlay.jpg',
+                route: '/dungeon',
+                buttonName:'Play!'
+            },
+            {
+                title: 'Compete with Friends',
+                info: 'Compare points on the leaderboard!',
+                src: 'img/competewithFriends.jpg',
+                route: '/leaderboard',
+                buttonName:'Leaderboard'
+            },
+            {
+                title: 'Buy some Bling',
+                info: 'Buy your stuff to Bedazzle!',
+                src: 'img/buysomeBling.jpg',
+                route: '/shop',
+                buttonName:'Shop'
+            },
+            {
+                title: 'Forum',
+                info: 'Give tips or express your like or dislike of tasks!',
+                src: 'img/Forum.JPG',
+                route: '/shop',
+                buttonName:'Forum'
+                }
+
+        ]
+    })
+    ,
+    props: {}
+    ,
     methods: {},
 
-    // language=HTML
+// language=HTML
     template: `
-        <v-expansion-panels focusable
-                            popout
-                            mandatory>
-            <v-expansion-panel>
-                <v-expansion-panel-header>Welcome to the Dungeon</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                    @sam can you write some stuff here, this is like the intro splash page
-                    <hr/>
-                    we should also format these to look nice too
-                    <br/>
-                    <v-row justify="center" class="pt-2">
-                        <router-link v-if="authUser"
-                                     to="/dungeon"
-                                     tag="v-btn"
-                                     class="action">Play Now!
-                        </router-link>
-                        <v-btn @click.prevent="login"
-                               color="action"
-                               class="ml-2"
-                               v-else>Log In
-                        </v-btn>
-                    </v-row>
-                </v-expansion-panel-content>
-            </v-expansion-panel>
-            <v-expansion-panel>
-                <v-expansion-panel-header>How to play</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                    Lorem ipsum dolor sit amet.
-                </v-expansion-panel-content>
-            </v-expansion-panel>
-            <v-expansion-panel>
-                <v-expansion-panel-header>Compete with friends</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                    Lorem ipsum dolor sit amet.
-                </v-expansion-panel-content>
-            </v-expansion-panel>
-            <v-expansion-panel>
-                <v-expansion-panel-header>Buy some bling</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                    Lorem ipsum dolor sit amet.
-                </v-expansion-panel-content>
-            </v-expansion-panel>
-        </v-expansion-panels>
+        <v-container>
+            <v-container>
+                <v-card>
+                    <v-container class="containerBackground">
+                        <p class="text-center">Welcome to the Fitlivion Dungeon! Home to exotic challenges to train your
+                            physique!</p>
+                        <hr/>
+                        <br/>
+                        <v-row justify="center" class="pt-2">
+                            <router-link v-if="authUser"
+                                         to="/dungeon"
+                                         tag="v-btn"
+                                         class="action">Play Now!
+                            </router-link>
+                            <v-btn @click.prevent="login"
+                                   color="action"
+                                   class="ml-2"
+                                   v-else>Log In
+                            </v-btn>
+                        </v-row>
+                </v-card>
+            </v-container>
+            <v-row dense>
+                <v-col v-for="(card, i) in cards"
+                       :key="i"
+                       cols="12">
+                    <v-card color="#ffa686">
+                        <div class="d-flex flex-no-wrap justify-space-between">
+                            <div>
+                                <v-card-title class="headline" v-text="card.title"
+                                ></v-card-title>
+                                <v-card-subtitle v-text="card.title"></v-card-subtitle>
+                                <v-card-actions>
+                                    <router-link v-if="authUser"
+                                                 :to="card.route"
+                                                 tag="v-btn"
+                                                 class="action" text>{{card.buttonName}}
+                                    </router-link>
+                                    <v-btn @click.prevent="login"
+                                           color="action"
+                                           class="ml-2"
+                                           v-else>Log In
+                                    </v-btn>
+                                </v-card-actions>
+                            </div>
+                            <v-avatar class="ma-3" size="125" tile>
+                                <v-img :src="card.src"></v-img>
+                            </v-avatar>
+                        </div>
+                    </v-card>
+                </v-col>
+            </v-row>
+        </v-container>
+
     `
 });
 const DungeonPage = Vue.component('DungeonPage', {
@@ -60,7 +106,13 @@ const DungeonPage = Vue.component('DungeonPage', {
             timeout: 3000
         };
     },
-    methods: {},
+    methods: {
+
+        //three random tasks from tasks array loop thru array
+        //make another array that pulls from tasks do math random at random index, check if already in array random by comparing
+        //to ID of tasks,;
+        //
+    },
     created() {
         //Update local task array with FireBase data
         db.collection('tasks').onSnapshot(s => {

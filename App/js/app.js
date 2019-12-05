@@ -19,11 +19,7 @@ let app = new Vue({
     router: router,
     data: {
         authUser: null
-
-
     },
-    methods: {},
-    computed: {},
     created() {
         //User Authentication
         firebase.auth().onAuthStateChanged((user) => {
@@ -49,24 +45,5 @@ let app = new Vue({
                 this.authUser = null;
             }
         });
-    },
-    mounted() {
-        //listener for login
-        bus.$on('Login', () => {
-            let provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth()
-                .signInWithPopup(provider)
-                .catch(function (error) {
-                    alert("Wow, there was a log-in error here. Code: " + error.code +
-                        " | Your hand tailored error message: " + error.message);
-                });
-        });
-        //listener for logout
-        bus.$on('Logout', () => {
-            let message = this.authUser.displayName + ' is logging out.';
-            bus.$emit('snackbar', message);
-            firebase.auth().signOut();
-        });
-    },
-    watch: {}
+    }
 });

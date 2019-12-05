@@ -6,8 +6,7 @@ Vue.component('navigation', {
             bottomNav: 0
         }
     },
-    computed: {},
-    mounted() {
+    created() {
         bus.$on('routeChange', (path) => {
             switch (path) {
                 case '/':
@@ -33,7 +32,7 @@ Vue.component('navigation', {
                     this.bottomNav = 0;
                     break;
             }
-        })
+        });
     },
     // language=HTML
     template: `
@@ -78,7 +77,6 @@ Vue.component('navigation', {
     `,
 });
 Vue.component('snack', {
-    props: {},
     data() {
         return {
             snackbar: false,
@@ -99,7 +97,7 @@ Vue.component('snack', {
             }
         }
     },
-    mounted() {
+    created() {
         bus.$on('snackbar', (message) => {
             this.reset();
             this.message = message;
@@ -129,10 +127,66 @@ Vue.component('task', {
     },
     methods: {
         startTask() {
-            bus.$emit('startTask', this.task);
+            if (this.authUser &&
+                !this.userIsOnTask) {
+                let date = new Date();
+                //return a date that is 30 minutes in the future
+                if (date.getMinutes() < (60 - this.task.timeout)) {
+                    //Add minutes
+                    date.setMinutes(date.getMinutes() + this.task.timeout);
+                } else {
+                    //subtract and then add an hour to get the proper minutes past the hour
+                    date.setMinutes(date.getMinutes() - (60 - this.task.timeout));
+                    date.setHours(date.getHours() + 1);
+                }
+
+                this.task.usersOnTask.push({uid: this.authUser.uid, canComplete: date});
+                db.collection('tasks').doc(this.task.id).update({usersOnTask: this.task.usersOnTask});
+
+                bus.$emit('snackbar', 'Task started: ' + this.task.details);
+            }
         },
         finishTask() {
-            bus.$emit('finishTask', this.task);
+            //listener for finish task
+            if (this.authUser &&
+                this.userIsOnTask) {
+                let userOnTask = this.task.usersOnTask.find(u => {
+                    return u.uid === this.authUser.uid
+                });
+                //remove user from 'on task' status
+                this.task.usersOnTask.splice(this.task.usersOnTask.indexOf(userOnTask), 1);
+                db.collection('tasks').doc(this.task.id).update({usersOnTask: this.task.usersOnTask});
+                //change local user.points value then update db version
+                switch (this.task.category) {
+                    case 'Cardio':
+                        db.collection('users').doc(this.authUser.uid)
+                            .update({
+                                points: firebase.firestore.FieldValue.increment(this.task.points),
+                                cardioPoints: firebase.firestore.FieldValue.increment(this.task.points)
+                            });
+                        break;
+                    case 'Strength':
+                        db.collection('users').doc(this.authUser.uid)
+                            .update({
+                                points: firebase.firestore.FieldValue.increment(this.task.points),
+                                strengthPoints: firebase.firestore.FieldValue.increment(this.task.points)
+                            });
+                        break;
+                    case 'Flexibility':
+                        db.collection('users').doc(this.authUser.uid)
+                            .update({
+                                points: firebase.firestore.FieldValue.increment(this.task.points),
+                                flexPoints: firebase.firestore.FieldValue.increment(this.task.points)
+                            });
+                        break;
+                    default:
+                        db.collection('users').doc(this.authUser.uid)
+                            .update({points: firebase.firestore.FieldValue.increment(this.task.points)});
+                        break;
+                }
+
+                bus.$emit('snackbar', 'You have been rewarded ' + this.task.points + ' points!');
+            }
         }
     },
     computed: {
@@ -154,7 +208,7 @@ Vue.component('task', {
         completeTime() {
             let d = this.task.usersOnTask.find(t => {
                 return t.uid === this.authUser.uid
-            }).canComplete;
+            }).canComplete.toDate();
 
             let minutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes();
 
@@ -201,7 +255,20 @@ Vue.component('storeBadge', {
     },
     methods: {
         buyBadge() {
-            bus.$emit('buyBadge', this.badge);
+            if (!this.userHasBought()) {
+                this.badge.ownedByUsers.push({
+                    uid: this.authUser.uid,
+                    purchasedOn: new Date()
+                });
+                db.collection('badges')
+                    .doc(this.badge.id)
+                    .update({ownedByUsers: this.badge.ownedByUsers});
+                db.collection('users')
+                    .doc(this.authUser.uid)
+                    .update({points: firebase.firestore.FieldValue.increment(this.badge.cost * -1)});
+
+                bus.$emit('snackbar', this.authUser.displayName + ' now has [ ' + this.badge.title + ' ] !');
+            }
         }
     },
     computed: {
@@ -211,6 +278,7 @@ Vue.component('storeBadge', {
             });
         },
         calcColor() {
+            //todo: make the badges not look like :poop:
             if (this.userHasBought)
                 return 'tertiary';
             if (this.userCanAfford)
@@ -237,7 +305,7 @@ Vue.component('storeBadge', {
                 <v-btn text
                        color="action"
                        :disabled="!userCanAfford"
-                       @click="buyBadge">Buy Badge
+                       @click.prevent="buyBadge">Buy Badge
                 </v-btn>
             </v-card-actions>
         </v-card>
@@ -249,11 +317,6 @@ Vue.component('profileBadge', {
         badge: {required: true},
         disabled: {}
     },
-    methods: {
-        buyBadge() {
-            bus.$emit('buyBadge', this.badge);
-        }
-    },
     computed: {
         userHasBought() {
             return this.badge.ownedByUsers.some(u => {
@@ -275,7 +338,7 @@ Vue.component('profileBadge', {
 
     // language=HTML
     template: `
-        <v-card max-width="350" min-width="250" :color="calcColor" :disabled="userHasBought">
+        <v-card max-width="350" min-width="250" :color="calcColor">
             <v-list-item three-line>
                 <v-list-item-content>
                     <div class="overline mb-4">Cost: {{badge.cost}} points</div>
@@ -283,22 +346,12 @@ Vue.component('profileBadge', {
                     <v-list-item-subtitle>Details: {{badge.details}}</v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
-            <v-card-actions>
-                <v-btn text
-                       color="action"
-                       :disabled="!userCanAfford"
-                       @click="buyBadge">Buy Badge
-                </v-btn>
-            </v-card-actions>
         </v-card>
     `
 });
 //Post Components
 Vue.component('postMaker', {
     mixins: [userMix],
-    props: {
-        parentPostId: {required: false}
-    },
     data() {
         return {
             subject: '',
@@ -321,20 +374,17 @@ Vue.component('postMaker', {
         },
         post() {
             let post = new Post();
-            if (this.parentPostId)
-                post.parentPostId = this.parentPostId;
             post.posterUid = this.authUser.uid;
             post.posterAvatar = this.authUser.photoURL;
             post.posterName = this.authUser.displayName;
             post.subject = this.subject;
             post.content = this.content;
             post.datePosted = new Date();
-            bus.$emit('newPost', post);
+            post.id = db.collection('posts').doc().id;
+            db.collection('posts').doc(post.id).set(post);
+            bus.$emit('snackbar', 'You just made a new post!');
             this.close();
         }
-    },
-    watch: {},
-    mounted() {
     },
     // language=HTML
     template: `
@@ -406,13 +456,23 @@ Vue.component('post', {
             }
         },
         dateString(date) {
-            return date.toLocaleDateString();
+            return date.toDate().toLocaleDateString();
         },
         upVote() {
-            bus.$emit('upVote', this.post);
+            db.collection('posts')
+                .doc(this.post.id)
+                .update({likes: firebase.firestore.FieldValue.increment(1)});
+            db.collection('users')
+                .doc(this.post.posterUid)
+                .update({upVotes: firebase.firestore.FieldValue.increment(1)});
         },
         downVote() {
-            bus.$emit('downVote', this.post);
+            db.collection('posts')
+                .doc(this.post.id)
+                .update({dislikes: firebase.firestore.FieldValue.increment(1)});
+            db.collection('users')
+                .doc(this.post.posterUid)
+                .update({downVotes: firebase.firestore.FieldValue.increment(1)});
         }
     },
     // language=HTML

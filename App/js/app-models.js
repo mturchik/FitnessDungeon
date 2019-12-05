@@ -12,7 +12,6 @@ const User = function (loginUser, firebaseUser) {
         upVotes: 0,
         downVotes: 0
     };
-    //TODO: WE SHOULD ADD PROFILE DETAILS HERE
 
     if (loginUser) {
         user.displayName = loginUser.displayName ? loginUser.displayName : '';
@@ -20,7 +19,7 @@ const User = function (loginUser, firebaseUser) {
         user.email = loginUser.email ? loginUser.email : '';
         user.photoURL = loginUser.photoURL ? loginUser.photoURL : '';
     }
-    if(firebaseUser){
+    if (firebaseUser) {
         user.displayName = firebaseUser.fields.displayName ? firebaseUser.fields.displayName.stringValue : '';
         user.uid = firebaseUser.fields.uid ? firebaseUser.fields.uid.stringValue : '';
         user.email = firebaseUser.fields.email ? firebaseUser.fields.email.stringValue : '';
@@ -41,6 +40,7 @@ const Task = function (firebaseTask) {
         category: '',
         details: '',
         points: 0,
+        timeout: 0,
         usersOnTask: []
     };
 
@@ -49,14 +49,15 @@ const Task = function (firebaseTask) {
         task.category = firebaseTask.fields.category ? firebaseTask.fields.category.stringValue : '';
         task.details = firebaseTask.fields.details ? firebaseTask.fields.details.stringValue : '';
         task.points = firebaseTask.fields.points ? parseInt(firebaseTask.fields.points.integerValue) : 0;
+        task.timeout = firebaseTask.fields.timeout ? parseInt(firebaseTask.fields.timeout.integerValue) : 0;
         //if the array exists, and there are values in it, add them
         if (firebaseTask.fields.usersOnTask && firebaseTask.fields.usersOnTask.arrayValue.values) {
             let users = [];
             firebaseTask.fields.usersOnTask.arrayValue.values.forEach(v => {
                 let map = v.mapValue.fields;
                 let user = {
-                  uid: map.uid.stringValue,
-                  canComplete: new Date(map.canComplete.timestampValue)
+                    uid: map.uid.stringValue,
+                    canComplete: new Date(map.canComplete.timestampValue)
                 };
                 users.push(user);
             });
@@ -67,7 +68,7 @@ const Task = function (firebaseTask) {
 
     return task;
 };
-const Badge = function (firebaseBadge){
+const Badge = function (firebaseBadge) {
     let badge = {
         id: '',
         title: '',
@@ -76,7 +77,7 @@ const Badge = function (firebaseBadge){
         ownedByUsers: []
     };
 
-    if(firebaseBadge){
+    if (firebaseBadge) {
         badge.id = firebaseBadge.name ? firebaseBadge.name.substr(firebaseBadge.name.lastIndexOf('/') + 1) : '';
         badge.title = firebaseBadge.fields.title ? firebaseBadge.fields.title.stringValue : '';
         badge.details = firebaseBadge.fields.details ? firebaseBadge.fields.details.stringValue : '';
@@ -99,13 +100,12 @@ const Badge = function (firebaseBadge){
 
     return badge;
 };
-const Post = function (firebasePost){
+const Post = function (firebasePost) {
     let post = {
         id: '',
         posterUid: '',
         posterAvatar: '',
         posterName: '',
-        parentPostId: '',
         subject: '',
         content: '',
         datePosted: '',
@@ -113,12 +113,11 @@ const Post = function (firebasePost){
         dislikes: 0
     };
 
-    if(firebasePost){
+    if (firebasePost) {
         post.id = firebasePost.name ? firebasePost.name.substr(firebasePost.name.lastIndexOf('/') + 1) : '';
         post.posterUid = firebasePost.fields.posterUid ? firebasePost.fields.posterUid.stringValue : '';
         post.posterAvatar = firebasePost.fields.posterAvatar ? firebasePost.fields.posterAvatar.stringValue : '';
         post.posterName = firebasePost.fields.posterName ? firebasePost.fields.posterName.stringValue : '';
-        post.parentPostId = firebasePost.fields.parentPostId ? firebasePost.fields.parentPostId.stringValue : '';
         post.subject = firebasePost.fields.subject ? firebasePost.fields.subject.stringValue : '';
         post.content = firebasePost.fields.content ? firebasePost.fields.content.stringValue : '';
         post.datePosted = firebasePost.fields.datePosted ? new Date(firebasePost.fields.datePosted.timestampValue) : '';

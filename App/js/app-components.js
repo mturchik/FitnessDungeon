@@ -196,26 +196,32 @@ Vue.component('task', {
             });
         },
         canComplete() {
-            let date = new Date();
-            let userOnTask = this.task.usersOnTask.find(u => {
-                return u.uid === this.authUser.uid
-            });
-            if (userOnTask) {
-                return date > userOnTask.canComplete;
+            if(this.userIsOnTask){
+                let userOnTask = this.task.usersOnTask.find(u => {
+                    return u.uid === this.authUser.uid
+                });
+                if (userOnTask) {
+                    let userDate = userOnTask.canComplete.toDate ? userOnTask.canComplete.toDate() : userOnTask.canComplete;
+
+                    return new Date(Date.now()) > userDate;
+                }
             }
-            return false;
         },
         completeTime() {
-            let d = this.task.usersOnTask.find(t => {
-                return t.uid === this.authUser.uid
-            }).canComplete.toDate();
+            if(this.userIsOnTask){
+                let userOnTask = this.task.usersOnTask.find(t => {
+                    return t.uid === this.authUser.uid
+                });
+                let date = userOnTask.canComplete.toDate ? userOnTask.canComplete.toDate() : userOnTask.canComplete;
+                let minutes = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
 
-            let minutes = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes();
+                if (date.getHours() < 12)
+                    return date.getHours() + ':' + minutes + ' AM';
 
-            if (d.getHours() < 12)
-                return d.getHours() + ':' + minutes + ' AM';
+                return (date.getHours() - 12) + ':' + minutes + ' PM';
+            }
 
-            return (d.getHours() - 12) + ':' + minutes + ' PM';
+            return '';
         }
     },
 
@@ -314,8 +320,7 @@ Vue.component('storeBadge', {
 Vue.component('profileBadge', {
     mixins: [userMix],
     props: {
-        badge: {required: true},
-        disabled: {}
+        badge: {required: true}
     },
     computed: {
         userHasBought() {
@@ -457,7 +462,8 @@ Vue.component('post', {
             }
         },
         dateString(date) {
-            return date.toDate().toLocaleDateString();
+            date = date.toDate ? date.toDate() : date;
+            return date.toLocaleDateString();
         },
         upVote() {
             db.collection('posts')

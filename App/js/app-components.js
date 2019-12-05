@@ -293,7 +293,7 @@ Vue.component('storeBadge', {
 
     // language=HTML
     template: `
-        <v-card max-width="350" min-width="250" :color="calcColor" :disabled="userHasBought">
+        <v-card width="350" height="200" :color="calcColor" :disabled="userHasBought">
             <v-list-item three-line>
                 <v-list-item-content>
                     <div class="overline mb-4">Cost: {{badge.cost}} points</div>
@@ -337,8 +337,9 @@ Vue.component('profileBadge', {
     },
 
     // language=HTML
+    //CHANGE Sm 12.4.2019
     template: `
-        <v-card max-width="350" min-width="250" :color="calcColor">
+        <v-card max-width="250" min-width="250" :color="calcColor">
             <v-list-item three-line>
                 <v-list-item-content>
                     <div class="overline mb-4">Cost: {{badge.cost}} points</div>

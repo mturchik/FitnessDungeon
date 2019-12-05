@@ -30,6 +30,14 @@
                           append-icon="mdi-arrow-up-bold"
                           prepend-icon="mdi-arrow-down-bold"
                           :label="pointString"></v-slider>
+
+                <v-slider v-model="timeout"
+                          min="1"
+                          max="60"
+                          append-icon="mdi-arrow-up-bold"
+                          prepend-icon="mdi-arrow-down-bold"
+                          :label="timeoutString"></v-slider>
+
                 <v-btn color="action"
                        @click="create">
                     Create Task
@@ -72,6 +80,7 @@
             category: '',
             details: '',
             points: 1,
+            timeout: 0,
             results: ''
         },
         methods: {
@@ -80,6 +89,7 @@
                 task.category = this.category;
                 task.details = this.details;
                 task.points = this.points;
+                task.timeout=this.timeout;
                 let id = db.collection('tasks').doc()._firestoreClient.clientId;
                 task.id = id;
                 db.collection('tasks').doc(id).set(task);
@@ -89,6 +99,9 @@
         computed: {
             pointString() {
                 return 'Points: ' + this.points;
+            },
+            timeoutString(){
+                return 'Minutes ' + this.timeout;
             }
         },
         watch: {}

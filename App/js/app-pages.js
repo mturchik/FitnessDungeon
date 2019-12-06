@@ -188,22 +188,7 @@ const LeaderBoardPage = Vue.component('LeaderBoardPage', {
     `
 });
 const ProfilePage = Vue.component('ProfilePage', {
-    mixins: [userMix],
-    data() {
-        return {
-            badges: [],
-        };
-    },
-    firestore: {
-        badges: db.collection('badges')
-    },
-    methods: {
-        userHasBought(badge) {
-            return badge.ownedByUsers.some(u => {
-                return u.uid === this.authUser.uid;
-            });
-        }
-    },
+    mixins: [userMix, badgeMix],
     // language=HTML
     template: `
         <v-row>
@@ -260,29 +245,14 @@ const ForumPage = Vue.component('ForumPage', {
                    v-for="(post, i) in posts"
                    :key="i"
                    justify-self="center">
-                <post :post="post"/>
+                <post :post="post" :auth-user="authUser"/>
             </v-col>
             <postMaker :auth-user="authUser"></postMaker>
         </v-row>
     `
 });
 const ShopPage = Vue.component('ShopPage', {
-    mixins: [userMix],
-    data() {
-        return {
-            badges: []
-        };
-    },
-    firestore: {
-        badges: db.collection('badges')
-    },
-    methods: {
-        userHasBought(badge) {
-            return badge.ownedByUsers.some(u => {
-                return u.uid === this.authUser.uid;
-            });
-        }
-    },
+    mixins: [userMix, badgeMix],
     // language=HTML
     template: `
         <v-row>

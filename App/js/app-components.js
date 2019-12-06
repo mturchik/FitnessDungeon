@@ -196,7 +196,7 @@ Vue.component('task', {
             });
         },
         canComplete() {
-            if(this.userIsOnTask){
+            if (this.userIsOnTask) {
                 let userOnTask = this.task.usersOnTask.find(u => {
                     return u.uid === this.authUser.uid
                 });
@@ -208,7 +208,7 @@ Vue.component('task', {
             }
         },
         completeTime() {
-            if(this.userIsOnTask){
+            if (this.userIsOnTask) {
                 let userOnTask = this.task.usersOnTask.find(t => {
                     return t.uid === this.authUser.uid
                 });
@@ -450,6 +450,7 @@ Vue.component('postMaker', {
     `
 });
 Vue.component('post', {
+    mixins: [userMix],
     props: {
         post: {required: true}
     },
@@ -466,20 +467,29 @@ Vue.component('post', {
             return date.toLocaleDateString();
         },
         upVote() {
-            db.collection('posts')
-                .doc(this.post.id)
-                .update({likes: firebase.firestore.FieldValue.increment(1)});
-            db.collection('users')
-                .doc(this.post.posterUid)
-                .update({upVotes: firebase.firestore.FieldValue.increment(1)});
+            if (!this.userIsPoster) {
+                db.collection('posts')
+                    .doc(this.post.id)
+                    .update({likes: firebase.firestore.FieldValue.increment(1)});
+                db.collection('users')
+                    .doc(this.post.posterUid)
+                    .update({upVotes: firebase.firestore.FieldValue.increment(1)});
+            }
         },
         downVote() {
-            db.collection('posts')
-                .doc(this.post.id)
-                .update({dislikes: firebase.firestore.FieldValue.increment(1)});
-            db.collection('users')
-                .doc(this.post.posterUid)
-                .update({downVotes: firebase.firestore.FieldValue.increment(1)});
+            if (!this.userIsPoster) {
+                db.collection('posts')
+                    .doc(this.post.id)
+                    .update({dislikes: firebase.firestore.FieldValue.increment(1)});
+                db.collection('users')
+                    .doc(this.post.posterUid)
+                    .update({downVotes: firebase.firestore.FieldValue.increment(1)});
+            }
+        }
+    },
+    computed:{
+        userIsPoster() {
+            return this.authUser && this.post.posterUid === this.authUser.uid;
         }
     },
     // language=HTML
@@ -511,13 +521,13 @@ Vue.component('post', {
                     <v-row class="flex-column ma-0 fill-height"
                            justify="center">
                         <v-col class="p-0 m-0">
-                            <v-btn text @click.prevent="upVote">
+                            <v-btn text @click.prevent="upVote" :disabled="userIsPoster">
                                 <v-icon>mdi-thumb-up</v-icon>
                                 {{post.likes}}
                             </v-btn>
                         </v-col>
                         <v-col class="p-0 m-0">
-                            <v-btn text @click.prevent="downVote">
+                            <v-btn text @click.prevent="downVote" :disabled="userIsPoster">
                                 <v-icon>mdi-thumb-down</v-icon>
                                 {{post.dislikes}}
                             </v-btn>

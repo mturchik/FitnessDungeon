@@ -20,3 +20,20 @@ const userMix = {
         }
     }
 };
+const badgeMix = {
+    data() {
+        return {
+            badges: [],
+        };
+    },
+    firestore: {
+        badges: db.collection('badges')
+    },
+    methods: {
+        userHasBought(badge) {
+            return badge.ownedByUsers.some(u => {
+                return u.uid === this.authUser.uid;
+            });
+        }
+    },
+};

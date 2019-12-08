@@ -3,7 +3,8 @@ Vue.component('navigation', {
     mixins: [userMix],
     data() {
         return {
-            bottomNav: 0
+            drawer: false,
+            group: null,
         }
     },
     created() {
@@ -11,69 +12,130 @@ Vue.component('navigation', {
             switch (path) {
                 case '/':
                 case '/home':
-                    this.bottomNav = 0;
+                    this.group = 0;
                     break;
                 case '/dungeon':
-                    this.bottomNav = 1;
+                    this.group = 1;
                     break;
                 case '/profile':
-                    this.bottomNav = 2;
+                    this.group = 2;
                     break;
                 case '/forum':
-                    this.bottomNav = 3;
+                    this.group = 3;
                     break;
                 case '/shop':
-                    this.bottomNav = 4;
+                    this.group = 4;
                     break;
                 case '/leaderBoard':
-                    this.bottomNav = 5;
+                    this.group = 5;
                     break;
                 default:
-                    this.bottomNav = 0;
+                    this.group = 0;
                     break;
             }
         });
     },
     // language=HTML
     template: `
-        <v-bottom-navigation background-color="primary"
-                             v-model="bottomNav"
-                             app
-                             mandatory>
-            <router-link to="/home" tag="v-btn">
-                <span>Home</span>
-                <v-icon>mdi-home</v-icon>
-            </router-link>
-            <router-link to="/dungeon" tag="v-btn" :disabled="!authUser">
-                <span>Dungeon</span>
-                <v-icon>mdi-castle</v-icon>
-            </router-link>
-            <router-link to="/profile" tag="v-btn" :disabled="!authUser">
-                <span>Profile</span>
-                <v-icon>mdi-face-profile</v-icon>
-            </router-link>
-            <router-link to="/forum" tag="v-btn" :disabled="!authUser">
-                <span>Forum</span>
-                <v-icon>mdi-forum</v-icon>
-            </router-link>
-            <router-link to="/shop" tag="v-btn" :disabled="!authUser">
-                <span>Shop</span>
-                <v-icon>mdi-basket</v-icon>
-            </router-link>
-            <router-link to="/leaderBoard" tag="v-btn">
-                <span>LeaderBoard</span>
-                <v-icon>mdi-bulletin-board</v-icon>
-            </router-link>
+        <v-app-bar bottom
+                   app
+                   v-if="!drawer"
+                   @click="drawer = !drawer"
+                   tag="v-btn"
+                   width="95%"
+                   class="justify-content-center mx-auto"
+                   color="primary">
+            <h3>- M E N U -</h3>
+        </v-app-bar>
+        <v-navigation-drawer v-model="drawer"
+                             v-else
+                             color="primary"
+                             fixed
+                             bottom
+                             temporary>
+            <template v-slot:prepend>
+                <v-list>
+                    <v-list-item two-line>
+                        <v-list-item-content>
+                            <v-list-item-title class="title">{{authUser.displayName}}</v-list-item-title>
+                            <v-list-item-subtitle>{{authUser.email}}</v-list-item-subtitle>
+                        </v-list-item-content>
+                        <v-list-item-avatar>
+                            <v-img :src="authUser.photoURL"></v-img>
+                        </v-list-item-avatar>
+                    </v-list-item>
+                </v-list>
+            </template>
+            <v-divider></v-divider>
+            <v-list nav
+                    dense>
+                <v-list-item-group v-model="group"
+                                   active-class="secondary">
+                    <router-link to="/home" tag="v-list-item">
+                        <v-list-item-icon>
+                            <v-icon>mdi-home</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Home</v-list-item-title>
+                        </v-list-item-content>
+                    </router-link>
 
-            <v-btn v-if="authUser" @click="logout">
-                <span>Log Out</span>
-                <v-icon>mdi-account-off-outline</v-icon>
-            </v-btn>
-            <v-btn v-else @click="login">
-                <span>Log In</span>
-                <v-icon>mdi-account-plus</v-icon>
-            </v-btn>
-        </v-bottom-navigation>
+                    <router-link to="/dungeon" tag="v-list-item">
+                        <v-list-item-icon>
+                            <v-icon>mdi-castle</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Dungeon</v-list-item-title>
+                        </v-list-item-content>
+                    </router-link>
+
+                    <router-link to="/profile" tag="v-list-item">
+                        <v-list-item-icon>
+                            <v-icon>mdi-face-profile</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Profile</v-list-item-title>
+                        </v-list-item-content>
+                    </router-link>
+
+                    <router-link to="/forum" tag="v-list-item">
+                        <v-list-item-icon>
+                            <v-icon>mdi-forum</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Forum</v-list-item-title>
+                        </v-list-item-content>
+                    </router-link>
+
+                    <router-link to="/shop" tag="v-list-item">
+                        <v-list-item-icon>
+                            <v-icon>mdi-basket</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Shop</v-list-item-title>
+                        </v-list-item-content>
+                    </router-link>
+
+                    <router-link to="/leaderBoard" tag="v-list-item">
+                        <v-list-item-icon>
+                            <v-icon>mdi-bulletin-board</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>LeaderBoard</v-list-item-title>
+                        </v-list-item-content>
+                    </router-link>
+
+                    <v-list-item @click.prevent="logout">
+                        <v-list-item-icon>
+                            <v-icon>mdi-account-off-outline</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Log Out</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                </v-list-item-group>
+            </v-list>
+        </v-navigation-drawer>
     `,
 });
 Vue.component('snack', {
@@ -111,7 +173,7 @@ Vue.component('snack', {
                     class="mb-12"
                     v-model="snackbar"
                     :timeout="timeout">
-            <h1>{{message}}</h1>
+            <h4>{{message}}</h4>
             <v-btn color="action"
                    text
                    @click="snackbar = false">Close
@@ -487,7 +549,7 @@ Vue.component('post', {
             }
         }
     },
-    computed:{
+    computed: {
         userIsPoster() {
             return this.authUser && this.post.posterUid === this.authUser.uid;
         }

@@ -28,7 +28,6 @@ let app = new Vue({
                 console.log('Signed in as: ', user.displayName);
                 this.authUser = new User(user);
                 //get db user value
-                //todo: make this better mark, it suck
                 db.collection('users').doc(user.uid).get().then(r => {
                     if (r._document) {
                         let dbUser = r._document.proto;
@@ -44,6 +43,16 @@ let app = new Vue({
                 // User is signed out.
                 console.log('Not signed in.');
                 this.authUser = null;
+            }
+        });
+        bus.$on('updateUser', ()=>{
+            if(this.authUser){
+                db.collection('users').doc(this.authUser.uid).get().then(r => {
+                    if (r._document) {
+                        let dbUser = r._document.proto;
+                        this.authUser = new User(null, dbUser);
+                    }
+                });
             }
         });
     }

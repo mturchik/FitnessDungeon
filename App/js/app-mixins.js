@@ -17,6 +17,9 @@ const userMix = {
             router.push('/home', () => {
                 bus.$emit('routeChange', '/home')
             });
+        },
+        updateUser(){
+            bus.$emit('updateUser');
         }
     }
 };

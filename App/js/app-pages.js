@@ -189,6 +189,9 @@ const LeaderBoardPage = Vue.component('LeaderBoardPage', {
 });
 const ProfilePage = Vue.component('ProfilePage', {
     mixins: [userMix, badgeMix],
+    mounted(){
+        this.updateUser();
+    },
     // language=HTML
     template: `
         <v-row>
@@ -197,6 +200,10 @@ const ProfilePage = Vue.component('ProfilePage', {
                            v-if="authUser"
                            floating>
                     <v-toolbar-title>{{authUser.displayName}}'s Profile</v-toolbar-title>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Points: {{authUser.points}}
+                    </v-chip>
                     <v-chip color="gold"
                             class="ml-4">
                         Badges: {{badges.length}}
@@ -253,6 +260,9 @@ const ForumPage = Vue.component('ForumPage', {
 });
 const ShopPage = Vue.component('ShopPage', {
     mixins: [userMix, badgeMix],
+    mounted(){
+        this.updateUser();
+    },
     // language=HTML
     template: `
         <v-row>

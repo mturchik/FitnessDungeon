@@ -187,7 +187,19 @@ Vue.component('task', {
 
                 bus.$emit('snackbar', 'You have been rewarded ' + this.task.points + ' points!');
             }
+        },
+        changeTask() {
+                db.collection('users').doc(this.authUser.uid)
+                    .update({
+                        points: firebase.firestore.FieldValue.increment(-8),
+                    });
+                this.updateUser();
+
+                bus.$emit('changeTask',this.task);
+                bus.$emit('snackbar', 'You have used 8 points!' + "total left is " + this.authUser.points);
         }
+
+
     },
     computed: {
         userIsOnTask() {
@@ -248,6 +260,7 @@ Vue.component('task', {
                        v-if="userIsOnTask && !canComplete"
                        disabled>Completable After: {{completeTime}}
                 </v-btn>
+                <v-btn text color="action" v-if="!userIsOnTask" @click="changeTask">Refresh task </br>(8 points) </v-btn>
             </v-card-actions>
         </v-card>
     `

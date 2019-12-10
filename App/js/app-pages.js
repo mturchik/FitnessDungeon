@@ -1,6 +1,7 @@
 const HomePage = Vue.component('HomePage', {
     mixins: [userMix],
     data: () => ({
+
         cards: [
             {
                 title: 'How to Play',
@@ -101,7 +102,10 @@ const DungeonPage = Vue.component('DungeonPage', {
     data() {
         return {
             tasks: [],
-            displayedTasks: []
+            displayedStrengthTasks:null,
+            displayedCardioTasks:null,
+            displayedFlexibilityTasks:null,
+            showPicture: 'true'
         };
     },
     firestore: {
@@ -126,30 +130,75 @@ const DungeonPage = Vue.component('DungeonPage', {
             });
             return flexibilityTasks[Math.floor(Math.random() * flexibilityTasks.length)];
         },
-        addDisplayedTasks() {
+        addAllDisplayedTasks() {
             //TODO: Add logic to check if the user is currently on the task, and if they are, do not allow them to randomize it away?
             //TODO: Add a point cost to getting new tasks
             //TODO: After user completes a task, a new one should be presented
-            this.displayedTasks = [];
-            this.displayedTasks.push(this.randCardioTask());
-            this.displayedTasks.push(this.randStrengthTask());
-            this.displayedTasks.push(this.randFlexTask());
-        },
+            this.showPicture = 'false';
+            this.displayedStrengthTasks = (this.randStrengthTask());
+            this.displayedCardioTasks = (this.randCardioTask());
+            this.displayedFlexibilityTasks = (this.randFlexTask());
+
+        }
+    },
+    mounted(){
+        bus.$on('changeTask', (task)=>{
+            switch(task.category){
+                case 'Strength':
+                    this.displayedStrengthTasks = (this.randStrengthTask());
+                    break;
+                case "Cardio":
+                    this.displayedCardioTasks = (this.randCardioTask());
+                    break;
+                case "Flexibility":
+                    this.displayedFlexibilityTasks = (this.randFlexTask());
+                    break;
+            }
+
+
+        });
     },
     // language=HTML
     template: `
         <v-container v-if="tasks.length > 0">
             <v-row>
-                <v-col v-for="(task, i) in displayedTasks"
-                       :key="i"
+                <v-col v-if="displayedStrengthTasks"
                        cols="12"
                        sm="4"
                        lg="3"
-                       width="300">
-                    <task :auth-user="authUser" :task="task"/>
+                       width="400"
+                        height="300">
+                       
+                    <task :auth-user="authUser" :task="displayedStrengthTasks"/>
+                    
+                </v-col>
+
+                <v-col v-if="displayedCardioTasks"
+                       cols="12"
+                       sm="4"
+                       lg="3"
+                       width="400"
+                       height="300">
+
+                    <task :auth-user="authUser" :task="displayedCardioTasks"/>
+
+                </v-col>
+
+                <v-col v-if="displayedFlexibilityTasks"
+                       cols="12"
+                       sm="4"
+                       lg="3"
+                       width="400"
+                       height="300">
+
+                    <task :auth-user="authUser" :task="displayedFlexibilityTasks"/>
+
                 </v-col>
             </v-row>
-            <v-btn @click="addDisplayedTasks">Add Items</v-btn>
+            <v-card :class="showPicture" v-if="showPicture=='true'">
+               <v-img @click="addAllDisplayedTasks" src="img/frontsplash.png"></v-img>
+            </v-card>
+            
         </v-container>
     `
 });

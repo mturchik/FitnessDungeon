@@ -189,14 +189,21 @@ Vue.component('task', {
             }
         },
         changeTask() {
-                db.collection('users').doc(this.authUser.uid)
-                    .update({
-                        points: firebase.firestore.FieldValue.increment(-8),
-                    });
-                this.updateUser();
-
-                bus.$emit('changeTask',this.task);
-                bus.$emit('snackbar', 'You have used 8 points!' + "total left is " + this.authUser.points);
+                if(this.authUser.points>8) {
+                    db.collection('users').doc(this.authUser.uid)
+                        .update({
+                            points: firebase.firestore.FieldValue.increment(-8),
+                        });
+                    console.log(this.authUser.uid);
+                    this.updateUser();
+                    console.log(this.authUser.uid);
+                    bus.$emit('changeTask', this.task);
+                    bus.$emit('snackbar', 'You have used 8 points!');
+                    console.log(this.authUser.uid);
+                }
+                else{
+                    bus.$emit('snackbar','You do not have enough points for this action!')
+                }
         }
 
 

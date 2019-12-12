@@ -50,7 +50,8 @@ let app = new Vue({
                 db.collection('users').doc(this.authUser.uid).get().then(r => {
                     if (r._document) {
                         let dbUser = r._document.proto;
-                        this.authUser = new User(null, dbUser);
+                        // TODO: MARK LOOK AT THIS
+                        //this.authUser = new User(null, dbUser);
                     }
                 });
             }

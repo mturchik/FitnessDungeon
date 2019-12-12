@@ -28,14 +28,13 @@ let app = new Vue({
                 console.log('Signed in as: ', user.displayName);
                 this.authUser = new User(user);
                 //get db user value
+                //HOW TO SET VUE FIRE FIRESTORE OBJECT (AFTER LOAD/ON DEMAND)
                 db.collection('users').doc(user.uid).get().then(r => {
-                    if (r._document) {
-                        let dbUser = r._document.proto;
-                        this.authUser = new User(user, dbUser);
-                    } else {
+                    if (!r._document) {
                         db.collection('users').doc(user.uid).set(this.authUser);
                     }
                 });
+                this.$bind('authUser', db.collection('users').doc(user.uid));
                 bus.$emit('routeChange', router.currentRoute.path);
                 let message = this.authUser.displayName + ' has logged in.';
                 bus.$emit('snackbar', message);
@@ -43,17 +42,6 @@ let app = new Vue({
                 // User is signed out.
                 console.log('Not signed in.');
                 this.authUser = null;
-            }
-        });
-        bus.$on('updateUser', ()=>{
-            if(this.authUser){
-                db.collection('users').doc(this.authUser.uid).get().then(r => {
-                    if (r._document) {
-                        let dbUser = r._document.proto;
-                        // TODO: MARK LOOK AT THIS
-                        //this.authUser = new User(null, dbUser);
-                    }
-                });
             }
         });
     }

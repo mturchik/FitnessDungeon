@@ -102,9 +102,9 @@ const DungeonPage = Vue.component('DungeonPage', {
     data() {
         return {
             tasks: [],
-            displayedStrengthTasks:null,
-            displayedCardioTasks:null,
-            displayedFlexibilityTasks:null,
+            displayedStrengthTasks: null,
+            displayedCardioTasks: null,
+            displayedFlexibilityTasks: null,
             showPicture: 'true'
         };
     },
@@ -141,9 +141,9 @@ const DungeonPage = Vue.component('DungeonPage', {
 
         }
     },
-    mounted(){
-        bus.$on('changeTask', (task)=>{
-            switch(task.category){
+    mounted() {
+        bus.$on('changeTask', (task) => {
+            switch (task.category) {
                 case 'Strength':
                     this.displayedStrengthTasks = (this.randStrengthTask());
                     break;
@@ -167,10 +167,10 @@ const DungeonPage = Vue.component('DungeonPage', {
                        sm="4"
                        lg="3"
                        width="400"
-                        height="300">
-                       
+                       height="300">
+
                     <task :auth-user="authUser" :task="displayedStrengthTasks"/>
-                    
+
                 </v-col>
 
                 <v-col v-if="displayedCardioTasks"
@@ -196,9 +196,9 @@ const DungeonPage = Vue.component('DungeonPage', {
                 </v-col>
             </v-row>
             <v-card :class="showPicture" v-if="showPicture=='true'">
-               <v-img @click="addAllDisplayedTasks" src="img/frontsplash.png"></v-img>
+                <v-img @click="addAllDisplayedTasks" src="img/frontsplash.png"></v-img>
             </v-card>
-            
+
         </v-container>
     `
 });
@@ -238,9 +238,6 @@ const LeaderBoardPage = Vue.component('LeaderBoardPage', {
 });
 const ProfilePage = Vue.component('ProfilePage', {
     mixins: [userMix, badgeMix],
-    mounted(){
-        this.updateUser();
-    },
     // language=HTML
     template: `
         <v-row>
@@ -309,9 +306,6 @@ const ForumPage = Vue.component('ForumPage', {
 });
 const ShopPage = Vue.component('ShopPage', {
     mixins: [userMix, badgeMix],
-    mounted(){
-        this.updateUser();
-    },
     // language=HTML
     template: `
         <v-row>

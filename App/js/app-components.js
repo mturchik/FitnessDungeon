@@ -111,7 +111,7 @@ Vue.component('snack', {
                     class="mb-12"
                     v-model="snackbar"
                     :timeout="timeout">
-            <h1>{{message}}</h1>
+            <h3>{{message}}</h3>
             <v-btn color="action"
                    text
                    @click="snackbar = false">Close
@@ -189,21 +189,16 @@ Vue.component('task', {
             }
         },
         changeTask() {
-                if(this.authUser.points>8) {
-                    db.collection('users').doc(this.authUser.uid)
-                        .update({
-                            points: firebase.firestore.FieldValue.increment(-8),
-                        });
-                    console.log(this.authUser.uid);
-                    this.updateUser();
-                    console.log(this.authUser.uid);
-                    bus.$emit('changeTask', this.task);
-                    bus.$emit('snackbar', 'You have used 8 points!');
-                    console.log(this.authUser.uid);
-                }
-                else{
-                    bus.$emit('snackbar','You do not have enough points for this action!')
-                }
+            if (this.authUser.points > 8) {
+                db.collection('users').doc(this.authUser.uid)
+                    .update({
+                        points: firebase.firestore.FieldValue.increment(-8),
+                    });
+                bus.$emit('changeTask', this.task);
+                bus.$emit('snackbar', 'You have used 8 of your points!');
+            } else {
+                bus.$emit('snackbar', 'You do not have enough points for this action!')
+            }
         }
 
 
@@ -267,7 +262,9 @@ Vue.component('task', {
                        v-if="userIsOnTask && !canComplete"
                        disabled>Completable After: {{completeTime}}
                 </v-btn>
-                <v-btn text color="action" v-if="!userIsOnTask" @click="changeTask">Refresh task </br>(8 points) </v-btn>
+                <v-btn text color="action" v-if="!userIsOnTask" @click="changeTask" :disabled="this.authUser.points < 8">
+                    Refresh task </br>(8 points)
+                </v-btn>
             </v-card-actions>
         </v-card>
     `
@@ -507,7 +504,7 @@ Vue.component('post', {
             }
         }
     },
-    computed:{
+    computed: {
         userIsPoster() {
             return this.authUser && this.post.posterUid === this.authUser.uid;
         }

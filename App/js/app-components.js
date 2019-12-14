@@ -154,7 +154,6 @@ Vue.component('task', {
         task: {required: true}
     },
     methods: {
-        //todo: add a new $emit for setting a new random task
         startTask() {
             if (this.authUser &&
                 !this.userIsOnTask) {

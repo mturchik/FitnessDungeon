@@ -551,39 +551,45 @@ Vue.component('post', {
             <v-row no-gutters>
                 <v-col cols="11"
                        tag="v-list-item"
-                       two-line>
+                       three-line>
                     <v-list-item-avatar tile
                                         size="80"
-                                        class="ml-6"
+                                        class="my-auto mr-3 ml-1"
                                         color="secondary">
                         <v-img :src="post.posterAvatar"></v-img>
                     </v-list-item-avatar>
-                    <v-list-item-content>
-                        <div class="overline mb-4">Posted by {{post.posterName}} on {{dateString(post.datePosted)}}
-                        </div>
-                        <v-list-item-title class="headline mb-1">
+                    <v-divider vertical/>
+                    <v-list-item-content class="ml-3">
+                        <v-list-item-title class="title mb-1">
                             {{post.subject}}
                         </v-list-item-title>
-                        <v-list-item-subtitle>
+                        <v-list-item-subtitle class="body-1">
                             {{cutContent(post.content)}}
                         </v-list-item-subtitle>
+                        <div class="overline">Posted by {{post.posterName}} on {{dateString(post.datePosted)}}</div>
                     </v-list-item-content>
                 </v-col>
                 <v-col cols="1"
                        tag="v-card-actions">
-                    <v-row class="flex-column ma-0 fill-height"
-                           justify="center">
-                        <v-col class="p-0 m-0">
-                            <v-btn text @click.prevent="upVote" :disabled="userIsPoster">
+                    <v-row justify="center"
+                           no-gutters>
+                        <v-col cols="6">
+                            <v-chip @click.prevent="upVote"
+                                    :disabled="userIsPoster"
+                                    color="gold"
+                                    class="ml-4">
                                 <v-icon>mdi-thumb-up</v-icon>
                                 {{post.likes}}
-                            </v-btn>
+                            </v-chip>
                         </v-col>
-                        <v-col class="p-0 m-0">
-                            <v-btn text @click.prevent="downVote" :disabled="userIsPoster">
+                        <v-col cols="6">
+                            <v-chip @click.prevent="downVote"
+                                    :disabled="userIsPoster"
+                                    color="gold"
+                                    class="ml-4">
                                 <v-icon>mdi-thumb-down</v-icon>
                                 {{post.dislikes}}
-                            </v-btn>
+                            </v-chip>
                         </v-col>
                     </v-row>
                 </v-col>

@@ -11,6 +11,7 @@ const User = function (loginUser, firebaseUser) {
         strengthPoints: 0,
         upVotes: 0,
         downVotes: 0
+        //todo: add badge count to user to avoid constantly pinging firebase for it
     };
 
     if (loginUser) {
@@ -127,8 +128,7 @@ const Post = function (firebasePost) {
 
     return post;
 };
-////////////////////////////////////////////////////////////////////////
-//Firebase Config
+//Firebase Config///////////////////////////////////////////////////////
 const firebaseConfig = {
     apiKey: "AIzaSyA6tBBf4Q4sJqg9EerEyRp-QPBAK_cs2kg",
     authDomain: "fitnessdungeon-d40e4.firebaseapp.com",
@@ -141,7 +141,6 @@ const firebaseConfig = {
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-
 // Initialize Cloud Firestore through Firebase
 const db = firebase.firestore();
 // Init Vue Modules

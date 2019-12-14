@@ -109,6 +109,7 @@ Vue.component('snack', {
     template: `
         <v-snackbar bottom
                     class="mb-12"
+                    color="secondary"
                     v-model="snackbar"
                     :timeout="timeout">
             <h3>{{message}}</h3>
@@ -126,6 +127,7 @@ Vue.component('task', {
         task: {required: true}
     },
     methods: {
+        //todo: add a new $emit for setting a new random task
         startTask() {
             if (this.authUser &&
                 !this.userIsOnTask) {
@@ -241,7 +243,7 @@ Vue.component('task', {
 
     // language=HTML
     template: `
-        <v-card max-width="350" min-width="250" color="primary">
+        <v-card max-width="350" min-width="250" color="secondary">
             <v-list-item three-line>
                 <v-list-item-content>
                     <div class="overline mb-4">Points: {{task.points}}</div>
@@ -301,13 +303,10 @@ Vue.component('storeBadge', {
             });
         },
         calcColor() {
-            //todo: make the badges not look like :poop:
-            if (this.userHasBought)
-                return 'tertiary';
             if (this.userCanAfford)
                 return 'actionTwo';
 
-            return 'primary';
+            return 'secondary';
         },
         userCanAfford() {
             return this.authUser.points >= this.badge.cost;
@@ -316,14 +315,13 @@ Vue.component('storeBadge', {
 
     // language=HTML
     template: `
-        <v-card width="350" height="200" :color="calcColor" :disabled="userHasBought">
-            <v-list-item three-line>
-                <v-list-item-content>
-                    <div class="overline mb-4">Cost: {{badge.cost}} points</div>
-                    <v-list-item-title class="headline mb-1">{{badge.title}}</v-list-item-title>
-                    <v-list-item-subtitle>Details: {{badge.details}}</v-list-item-subtitle>
-                </v-list-item-content>
-            </v-list-item>
+        <v-card max-width="350" :color="calcColor" :disabled="userHasBought">
+            <!--<v-img src="img/buysomeBling.jpg"> Uncomment for some images on the badge-->
+            <v-card-title>{{badge.title}}</v-card-title>
+            <!--</v-img>-->
+            <v-card-subtitle>{{badge.details}}</v-card-subtitle>
+            <v-divider horizontal></v-divider>
+            <v-card-text>Cost: {{badge.cost}} points</v-card-text>
             <v-card-actions>
                 <v-btn text
                        color="action"
@@ -345,30 +343,19 @@ Vue.component('profileBadge', {
                 return u.uid === this.authUser.uid;
             });
         },
-        calcColor() {
-            if (this.userHasBought)
-                return 'tertiary';
-            if (this.userCanAfford)
-                return 'actionTwo';
-
-            return 'primary';
-        },
         userCanAfford() {
             return this.authUser.points >= this.badge.cost;
         }
     },
 
     // language=HTML
-    //CHANGE Sm 12.4.2019
     template: `
-        <v-card max-width="250" min-width="250" :color="calcColor">
-            <v-list-item three-line>
-                <v-list-item-content>
-                    <div class="overline mb-4">Cost: {{badge.cost}} points</div>
-                    <v-list-item-title class="headline mb-1">{{badge.title}}</v-list-item-title>
-                    <v-list-item-subtitle>Details: {{badge.details}}</v-list-item-subtitle>
-                </v-list-item-content>
-            </v-list-item>
+        <v-card max-width="350" color="secondary">
+            <!--<v-img src="img/buysomeBling.jpg"> Uncomment for some images on the badge-->
+                <v-card-title>{{badge.title}}</v-card-title>
+            <!--</v-img>-->
+            <v-divider horizontal></v-divider>
+            <v-card-subtitle>{{badge.details}}</v-card-subtitle>
         </v-card>
     `
 });
@@ -381,7 +368,6 @@ Vue.component('postMaker', {
             content: '',
             valid: false,
             rules: [
-                v => !!v || 'Required',
                 v => v.length >= 10 || 'Must be more than 10 characters',
                 v => v.length <= 100 || 'Must be less than 100 characters',
             ],
@@ -427,10 +413,8 @@ Vue.component('postMaker', {
                 </v-btn>
             </template>
             <v-card color="primary">
-                <v-form v-model="valid" ref="newPost">
-                    <v-card-title class="mt-3">
-                        <span class="headline">New Forum Post</span>
-                    </v-card-title>
+                <v-form v-model="valid" ref="newPost" lazy-validation>
+                    <v-card-title class="mt-3 headline">Flex on the fools with a new post!</v-card-title>
                     <v-card-text>
                         <v-container>
                             <v-row>
@@ -438,7 +422,10 @@ Vue.component('postMaker', {
                                     <v-text-field label="Subject"
                                                   v-model="subject"
                                                   :rules="rules"
-                                                  outlined
+                                                  background-color="secondary"
+                                                  hint="Min length: 10 Characters"
+                                                  filled
+                                                  validate-on-blur
                                                   placeholder="Witty hook here"
                                                   required></v-text-field>
                                 </v-col>
@@ -446,8 +433,10 @@ Vue.component('postMaker', {
                                     <v-textarea label="Content"
                                                 v-model="content"
                                                 :rules="rules"
-                                                outlined
-                                                counter
+                                                background-color="secondary"
+                                                hint="Min length: 10 Characters"
+                                                filled
+                                                validate-on-blur
                                                 rows="2"
                                                 no-resize
                                                 placeholder="Some very intriguing content for other's consumption"
@@ -511,7 +500,7 @@ Vue.component('post', {
     },
     // language=HTML
     template: `
-        <v-container tag="v-card" class="primary">
+        <v-container tag="v-card" class="secondary">
             <v-row no-gutters>
                 <v-col cols="11"
                        tag="v-list-item"

@@ -1,21 +1,20 @@
 const HomePage = Vue.component('HomePage', {
     mixins: [userMix],
     data: () => ({
-
         cards: [
             {
                 title: 'How to Play',
                 info: 'Complete Tasks and earn points, go to the dungeon!',
                 src: 'img/howtoPlay.jpg',
                 route: '/dungeon',
-                buttonName: 'Play!'
+                buttonName: 'Into the Dungeon!'
             },
             {
                 title: 'Compete with Friends',
                 info: 'Compare points on the leaderboard!',
                 src: 'img/competewithFriends.jpg',
-                route: '/leaderboard',
-                buttonName: 'Leaderboard'
+                route: '/leaderBoard',
+                buttonName: 'LeaderBoard'
             },
             {
                 title: 'Buy some Bling',
@@ -28,10 +27,9 @@ const HomePage = Vue.component('HomePage', {
                 title: 'Forum',
                 info: 'Give tips or express your like or dislike of tasks!',
                 src: 'img/Forum.JPG',
-                route: '/Forum',
+                route: '/forum',
                 buttonName: 'Forum'
             }
-
         ]
     }),
     methods: {
@@ -45,161 +43,155 @@ const HomePage = Vue.component('HomePage', {
     },
 // language=HTML
     template: `
-        <v-container>
-            <v-card class="mb-1">
-                <v-container class="containerBackground">
-                    <p class="text-center">Welcome to the Fitlivion Dungeon! Home to exotic challenges to train your
-                        physique!</p>
-                    <hr/>
-                    <br/>
-                    <v-row justify="center" class="pt-2">
-                        <v-btn v-if="authUser"
-                               @click.prevent="changeRoute()"
-                               class="action">Play Now!
-                        </v-btn>
-                        <v-btn @click.prevent="login"
-                               color="action"
-                               class="ml-2"
-                               v-else>Log In
-                        </v-btn>
-                    </v-row>
-                </v-container>
-            </v-card>
-            <v-row dense>
-                <v-col v-for="(card, i) in cards"
-                       :key="i"
-                       cols="12">
-                    <v-card color="#ffa686">
-                        <div class="d-flex flex-no-wrap justify-space-between">
-                            <div>
-                                <v-card-title class="headline" v-text="card.title"
-                                ></v-card-title>
-                                <v-card-subtitle v-text="card.title"></v-card-subtitle>
-                                <v-card-actions>
-                                    <v-btn v-if="authUser"
-                                           @click="changeRoute(card.route)"
-                                           class="action" text>{{card.buttonName}}
-                                    </v-btn>
-                                    <v-btn @click.prevent="login"
-                                           color="action"
-                                           class="ml-2"
-                                           v-else>Log In
-                                    </v-btn>
-                                </v-card-actions>
-                            </div>
-                            <v-avatar class="ma-3" size="125" tile>
-                                <v-img :src="card.src"></v-img>
-                            </v-avatar>
+        <v-row dense>
+            <v-col cols="12">
+                <v-card class="mb-1">
+                    <v-container class="primary">
+                        <h3 class="text-center mb-3">
+                            Welcome to the Fitlivion Dungeon!
+                            <br/>
+                            Home to exotic challenges to train your physique!
+                        </h3>
+                        <hr/>
+                        <v-row justify="center" class="pt-2 mt-1">
+                            <v-btn v-if="authUser"
+                                   @click.prevent="changeRoute()"
+                                   class="action">Play Now!
+                            </v-btn>
+                            <v-btn @click.prevent="login"
+                                   color="action"
+                                   class="ml-2"
+                                   v-else>Log In
+                            </v-btn>
+                        </v-row>
+                    </v-container>
+                </v-card>
+            </v-col>
+            <v-col v-for="(card, i) in cards"
+                   :key="i"
+                   cols="12">
+                <v-card color="secondary">
+                    <div class="d-flex flex-no-wrap justify-space-between">
+                        <div>
+                            <v-card-title class="headline" v-text="card.title"></v-card-title>
+                            <v-card-subtitle v-text="card.title"></v-card-subtitle>
+                            <v-card-actions>
+                                <v-btn v-if="authUser"
+                                       @click="changeRoute(card.route)"
+                                       class="action" text>{{card.buttonName}}
+                                </v-btn>
+                                <v-btn @click.prevent="login"
+                                       color="action"
+                                       class="ml-2"
+                                       v-else>Log In
+                                </v-btn>
+                            </v-card-actions>
                         </div>
-                    </v-card>
-                </v-col>
-            </v-row>
-        </v-container>
+                        <v-avatar class="ma-3" size="125" tile>
+                            <v-img :src="card.src"></v-img>
+                        </v-avatar>
+                    </div>
+                </v-card>
+            </v-col>
+        </v-row>
     `
 });
 const DungeonPage = Vue.component('DungeonPage', {
-    mixins: [userMix],
+    mixins: [userMix, badgeMix],
     data() {
         return {
             tasks: [],
-            displayedStrengthTasks: null,
-            displayedCardioTasks: null,
-            displayedFlexibilityTasks: null,
-            showPicture: 'true'
+            displayedStrengthTask: null,
+            displayedCardioTask: null,
+            displayedFlexibilityTask: null,
+            showPicture: true
         };
     },
     firestore: {
         tasks: db.collection('tasks')
     },
     methods: {
-        randCardioTask() {
-            let cardioTasks = this.tasks.filter(t => {
-                return t.category === "Cardio"
+        getRandomTask(catFilter) {
+            let fTasks = this.tasks.filter(t => {
+                return t.category === catFilter
             });
-            return cardioTasks[Math.floor(Math.random() * cardioTasks.length)];
-        },
-        randStrengthTask() {
-            let strengthTasks = this.tasks.filter(t => {
-                return t.category === "Strength"
+            let taskUserIsOn = fTasks.find(t => {
+                return t.usersOnTask.some(t => {
+                    return t.uid === this.authUser.uid
+                })
             });
-            return strengthTasks[Math.floor(Math.random() * strengthTasks.length)];
-        },
-        randFlexTask() {
-            let flexibilityTasks = this.tasks.filter(t => {
-                return t.category === "Flexibility"
-            });
-            return flexibilityTasks[Math.floor(Math.random() * flexibilityTasks.length)];
+
+            return taskUserIsOn ? taskUserIsOn : fTasks[Math.floor(Math.random() * fTasks.length)];
         },
         addAllDisplayedTasks() {
-            //TODO: Add logic to check if the user is currently on the task, and if they are, do not allow them to randomize it away?
-            //TODO: Add a point cost to getting new tasks
-            //TODO: After user completes a task, a new one should be presented
-            this.showPicture = 'false';
-            this.displayedStrengthTasks = (this.randStrengthTask());
-            this.displayedCardioTasks = (this.randCardioTask());
-            this.displayedFlexibilityTasks = (this.randFlexTask());
-
+            this.showPicture = false;
+            this.displayedStrengthTask = (this.getRandomTask("Cardio"));
+            this.displayedCardioTask = (this.getRandomTask("Strength"));
+            this.displayedFlexibilityTask = (this.getRandomTask("Flexibility"));
         }
     },
     mounted() {
         bus.$on('changeTask', (task) => {
             switch (task.category) {
-                case 'Strength':
-                    this.displayedStrengthTasks = (this.randStrengthTask());
-                    break;
                 case "Cardio":
-                    this.displayedCardioTasks = (this.randCardioTask());
+                    this.displayedStrengthTask = (this.getRandomTask("Cardio"));
+                    break;
+                case 'Strength':
+                    this.displayedCardioTask = (this.getRandomTask("Strength"));
                     break;
                 case "Flexibility":
-                    this.displayedFlexibilityTasks = (this.randFlexTask());
+                    this.displayedFlexibilityTask = (this.getRandomTask("Flexibility"));
                     break;
             }
-
-
         });
     },
     // language=HTML
     template: `
-        <v-container v-if="tasks.length > 0">
-            <v-row>
-                <v-col v-if="displayedStrengthTasks"
-                       cols="12"
-                       sm="4"
-                       lg="3"
-                       width="400"
-                       height="300">
-
-                    <task :auth-user="authUser" :task="displayedStrengthTasks"/>
-
-                </v-col>
-
-                <v-col v-if="displayedCardioTasks"
-                       cols="12"
-                       sm="4"
-                       lg="3"
-                       width="400"
-                       height="300">
-
-                    <task :auth-user="authUser" :task="displayedCardioTasks"/>
-
-                </v-col>
-
-                <v-col v-if="displayedFlexibilityTasks"
-                       cols="12"
-                       sm="4"
-                       lg="3"
-                       width="400"
-                       height="300">
-
-                    <task :auth-user="authUser" :task="displayedFlexibilityTasks"/>
-
-                </v-col>
-            </v-row>
-            <v-card :class="showPicture" v-if="showPicture=='true'">
-                <v-img @click="addAllDisplayedTasks" src="img/frontsplash.png"></v-img>
+        <v-row>
+            <v-col cols="12" justify-self="center">
+                <v-toolbar color="primary"
+                           v-if="authUser"
+                           floating>
+                    <v-toolbar-title>{{authUser.displayName}} -</v-toolbar-title>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Points: {{authUser.points}}
+                    </v-chip>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Badges: {{badges.length}}
+                    </v-chip>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Up-Votes: {{authUser.upVotes}}
+                    </v-chip>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Down-Votes: {{authUser.downVotes}}
+                    </v-chip>
+                </v-toolbar>
+            </v-col>
+            <v-col v-if="tasks.length > 0 && displayedStrengthTask"
+                   cols="12"
+                   lg="4">
+                <task :auth-user="authUser" :task="displayedStrengthTask"/>
+            </v-col>
+            <v-col v-if="tasks.length > 0 && displayedCardioTask"
+                   cols="12"
+                   lg="4">
+                <task :auth-user="authUser" :task="displayedCardioTask"/>
+            </v-col>
+            <v-col v-if="tasks.length > 0 && displayedFlexibilityTask"
+                   cols="12"
+                   lg="4">
+                <task :auth-user="authUser" :task="displayedFlexibilityTask"/>
+            </v-col>
+            <v-card :class="showPicture" v-if="showPicture">
+                <v-img @click="addAllDisplayedTasks"
+                       src="img/frontsplash.png"
+                       max-height="550"></v-img>
             </v-card>
-
-        </v-container>
+        </v-row>
     `
 });
 const LeaderBoardPage = Vue.component('LeaderBoardPage', {
@@ -245,7 +237,7 @@ const ProfilePage = Vue.component('ProfilePage', {
                 <v-toolbar color="primary"
                            v-if="authUser"
                            floating>
-                    <v-toolbar-title>{{authUser.displayName}}'s Profile</v-toolbar-title>
+                    <v-toolbar-title>{{authUser.displayName}} -</v-toolbar-title>
                     <v-chip color="gold"
                             class="ml-4">
                         Points: {{authUser.points}}
@@ -276,18 +268,41 @@ const ProfilePage = Vue.component('ProfilePage', {
     `
 });
 const ForumPage = Vue.component('ForumPage', {
-    mixins: [userMix],
+    mixins: [userMix, badgeMix],
     data() {
         return {
             posts: []
         };
     },
     firestore: {
-        posts: db.collection('posts')
+        posts: db.collection('posts').orderBy("datePosted", "desc")
     },
     // language=HTML
     template: `
         <v-row v-if="authUser">
+            <v-col cols="12" justify-self="center">
+                <v-toolbar color="primary"
+                           v-if="authUser"
+                           floating>
+                    <v-toolbar-title>{{authUser.displayName}} -</v-toolbar-title>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Points: {{authUser.points}}
+                    </v-chip>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Badges: {{badges.length}}
+                    </v-chip>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Up-Votes: {{authUser.upVotes}}
+                    </v-chip>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Down-Votes: {{authUser.downVotes}}
+                    </v-chip>
+                </v-toolbar>
+            </v-col>
             <v-col cols="12" justify-self="center">
                 <v-toolbar color="primary"
                            v-if="authUser">
@@ -313,10 +328,22 @@ const ShopPage = Vue.component('ShopPage', {
                 <v-toolbar color="primary"
                            v-if="authUser"
                            floating>
-                    <v-toolbar-title>{{authUser.displayName}}'s Wallet Contains</v-toolbar-title>
+                    <v-toolbar-title>{{authUser.displayName}} -</v-toolbar-title>
                     <v-chip color="gold"
                             class="ml-4">
                         Points: {{authUser.points}}
+                    </v-chip>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Badges: {{badges.length}}
+                    </v-chip>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Up-Votes: {{authUser.upVotes}}
+                    </v-chip>
+                    <v-chip color="gold"
+                            class="ml-4">
+                        Down-Votes: {{authUser.downVotes}}
                     </v-chip>
                 </v-toolbar>
             </v-col>

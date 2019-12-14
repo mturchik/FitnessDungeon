@@ -5,13 +5,12 @@ let app = new Vue({
         theme: {
             themes: {
                 light: {
-                    primary: '#ffa686',
-                    secondary: '#aa767c',
-                    tertiary: '#f26080',
-                    action: '#a3fe82',
-                    actionTwo: '#2ed3ff',
+                    primary: '#00bfc6',
+                    secondary: '#519cbe',
+                    action: '#9516a5',
+                    actionTwo: '#b023d0',
                     gold: '#ffe424',
-                    background: '#63474d'
+                    background: '#b6bbc0'
                 }
             }
         }

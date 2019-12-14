@@ -573,24 +573,20 @@ Vue.component('post', {
                        tag="v-card-actions">
                     <v-row justify="center"
                            no-gutters>
-                        <v-col cols="6">
-                            <v-chip @click.prevent="upVote"
-                                    :disabled="userIsPoster"
-                                    color="gold"
-                                    class="ml-4">
-                                <v-icon>mdi-thumb-up</v-icon>
-                                {{post.likes}}
-                            </v-chip>
-                        </v-col>
-                        <v-col cols="6">
-                            <v-chip @click.prevent="downVote"
-                                    :disabled="userIsPoster"
-                                    color="gold"
-                                    class="ml-4">
-                                <v-icon>mdi-thumb-down</v-icon>
-                                {{post.dislikes}}
-                            </v-chip>
-                        </v-col>
+                        <v-chip @click.prevent="upVote"
+                                :disabled="userIsPoster"
+                                color="gold"
+                                class="mx-auto mb-2">
+                            <v-icon>mdi-thumb-up</v-icon>
+                            {{post.likes}}
+                        </v-chip>
+                        <v-chip @click.prevent="downVote"
+                                :disabled="userIsPoster"
+                                color="gold"
+                                class="mx-auto mt-2">
+                            <v-icon>mdi-thumb-down</v-icon>
+                            {{post.dislikes}}
+                        </v-chip>
                     </v-row>
                 </v-col>
             </v-row>

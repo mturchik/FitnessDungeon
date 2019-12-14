@@ -182,6 +182,7 @@ const LeaderBoardPage = Vue.component('LeaderBoardPage', {
                 {text: 'Cardio', value: 'cardioPoints'},
                 {text: 'Strength', value: 'flexPoints'},
                 {text: 'Flexibility', value: 'strengthPoints'},
+                {text: 'Badges', value: 'badgeCount'},
                 {text: 'Up-Votes', value: 'upVotes'},
                 {text: 'Down-Votes', value: 'downVotes'}
             ],

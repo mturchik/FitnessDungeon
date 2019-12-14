@@ -14,9 +14,6 @@ const userMix = {
         logout() {
             bus.$emit('snackbar', this.authUser.displayName + ' is logging out.');
             firebase.auth().signOut();
-            router.push('/home', () => {
-                bus.$emit('routeChange', '/home')
-            });
         }
     }
 };

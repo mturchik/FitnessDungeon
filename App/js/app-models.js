@@ -10,8 +10,8 @@ const User = function (loginUser, firebaseUser) {
         flexPoints: 0,
         strengthPoints: 0,
         upVotes: 0,
-        downVotes: 0
-        //todo: add badge count to user to avoid constantly pinging firebase for it
+        downVotes: 0,
+        badgeCount: 0
     };
 
     if (loginUser) {
@@ -31,6 +31,7 @@ const User = function (loginUser, firebaseUser) {
         user.strengthPoints = firebaseUser.fields.strengthPoints ? parseInt(firebaseUser.fields.strengthPoints.integerValue) : 0;
         user.upVotes = firebaseUser.fields.upVotes ? parseInt(firebaseUser.fields.upVotes.integerValue) : 0;
         user.downVotes = firebaseUser.fields.downVotes ? parseInt(firebaseUser.fields.downVotes.integerValue) : 0;
+        user.badgeCount = firebaseUser.fields.badgeCount ? parseInt(firebaseUser.fields.badgeCount.integerValue) : 0;
     }
 
     return user;

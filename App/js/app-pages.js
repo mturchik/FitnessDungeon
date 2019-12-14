@@ -36,9 +36,7 @@ const HomePage = Vue.component('HomePage', {
         changeRoute(path) {
             if (!path)
                 path = '/dungeon';
-            router.push(path, () => {
-                bus.$emit('routeChange', path)
-            });
+            router.push(path);
         }
     },
 // language=HTML
@@ -97,7 +95,7 @@ const HomePage = Vue.component('HomePage', {
     `
 });
 const DungeonPage = Vue.component('DungeonPage', {
-    mixins: [userMix, badgeMix],
+    mixins: [userMix],
     data() {
         return {
             tasks: [],
@@ -133,13 +131,13 @@ const DungeonPage = Vue.component('DungeonPage', {
     mounted() {
         bus.$on('changeTask', (task) => {
             switch (task.category) {
-                case "Cardio":
+                case 'Cardio':
                     this.displayedStrengthTask = (this.getRandomTask("Cardio"));
                     break;
                 case 'Strength':
                     this.displayedCardioTask = (this.getRandomTask("Strength"));
                     break;
-                case "Flexibility":
+                case 'Flexibility':
                     this.displayedFlexibilityTask = (this.getRandomTask("Flexibility"));
                     break;
             }
@@ -148,29 +146,7 @@ const DungeonPage = Vue.component('DungeonPage', {
     // language=HTML
     template: `
         <v-row>
-            <v-col cols="12" justify-self="center">
-                <v-toolbar color="primary"
-                           v-if="authUser"
-                           floating>
-                    <v-toolbar-title>{{authUser.displayName}} -</v-toolbar-title>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Points: {{authUser.points}}
-                    </v-chip>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Badges: {{badges.length}}
-                    </v-chip>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Up-Votes: {{authUser.upVotes}}
-                    </v-chip>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Down-Votes: {{authUser.downVotes}}
-                    </v-chip>
-                </v-toolbar>
-            </v-col>
+            <userBar :auth-user="authUser"></userBar>
             <v-col v-if="tasks.length > 0 && displayedStrengthTask"
                    cols="12"
                    lg="4">
@@ -195,6 +171,7 @@ const DungeonPage = Vue.component('DungeonPage', {
     `
 });
 const LeaderBoardPage = Vue.component('LeaderBoardPage', {
+    mixins: [userMix],
     data() {
         return {
             headers: [
@@ -215,6 +192,7 @@ const LeaderBoardPage = Vue.component('LeaderBoardPage', {
     // language=HTML
     template: `
         <v-row>
+            <userBar v-if="authUser" :auth-user="authUser"></userBar>
             <v-col>
                 <v-data-table :headers="headers"
                               :items="users"
@@ -233,29 +211,7 @@ const ProfilePage = Vue.component('ProfilePage', {
     // language=HTML
     template: `
         <v-row>
-            <v-col cols="12" justify-self="center">
-                <v-toolbar color="primary"
-                           v-if="authUser"
-                           floating>
-                    <v-toolbar-title>{{authUser.displayName}} -</v-toolbar-title>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Points: {{authUser.points}}
-                    </v-chip>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Badges: {{badges.length}}
-                    </v-chip>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Up-Votes: {{authUser.upVotes}}
-                    </v-chip>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Down-Votes: {{authUser.downVotes}}
-                    </v-chip>
-                </v-toolbar>
-            </v-col>
+            <userBar :auth-user="authUser"></userBar>
             <v-col v-for="(badge, i) in badges"
                    v-if="userHasBought(badge)"
                    :key="i"
@@ -279,30 +235,8 @@ const ForumPage = Vue.component('ForumPage', {
     },
     // language=HTML
     template: `
-        <v-row v-if="authUser">
-            <v-col cols="12" justify-self="center">
-                <v-toolbar color="primary"
-                           v-if="authUser"
-                           floating>
-                    <v-toolbar-title>{{authUser.displayName}} -</v-toolbar-title>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Points: {{authUser.points}}
-                    </v-chip>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Badges: {{badges.length}}
-                    </v-chip>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Up-Votes: {{authUser.upVotes}}
-                    </v-chip>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Down-Votes: {{authUser.downVotes}}
-                    </v-chip>
-                </v-toolbar>
-            </v-col>
+        <v-row>
+            <userBar :auth-user="authUser"></userBar>
             <v-col cols="12" justify-self="center">
                 <v-toolbar color="primary"
                            v-if="authUser">
@@ -324,29 +258,7 @@ const ShopPage = Vue.component('ShopPage', {
     // language=HTML
     template: `
         <v-row>
-            <v-col cols="12" justify-self="center">
-                <v-toolbar color="primary"
-                           v-if="authUser"
-                           floating>
-                    <v-toolbar-title>{{authUser.displayName}} -</v-toolbar-title>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Points: {{authUser.points}}
-                    </v-chip>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Badges: {{badges.length}}
-                    </v-chip>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Up-Votes: {{authUser.upVotes}}
-                    </v-chip>
-                    <v-chip color="gold"
-                            class="ml-4">
-                        Down-Votes: {{authUser.downVotes}}
-                    </v-chip>
-                </v-toolbar>
-            </v-col>
+            <userBar :auth-user="authUser"></userBar>
             <v-col v-for="(badge, i) in badges"
                    v-if="!userHasBought(badge)"
                    :key="i"

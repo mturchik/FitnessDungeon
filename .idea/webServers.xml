@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="e906dd36-b24a-4d77-b240-2d09c1830d74" name="BitLamps" url="http://mturchik.bitlampsites.com/FitnessDungeon">
+        <fileTransfer host="mturchik.bitlampsites.com" port="22" rootFolder="/public_html/FitnessDungeon" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

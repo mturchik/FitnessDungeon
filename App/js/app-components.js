@@ -3,64 +3,60 @@ Vue.component('navigation', {
     mixins: [userMix],
     data() {
         return {
-            bottomNav: 0
+            bottomNav: this.navFromRoute(router.currentRoute.path)
+        }
+    },
+    methods: {
+        navFromRoute(route) {
+            switch (route) {
+                case '/':
+                case '/home':
+                    return 1;
+                case '/dungeon':
+                    return 2;
+                case '/profile':
+                    return 3;
+                case '/forum':
+                    return 4;
+                case '/shop':
+                    return 5;
+                case '/leaderBoard':
+                    return 6;
+            }
         }
     },
     created() {
-        bus.$on('routeChange', (path) => {
-            switch (path) {
-                case '/':
-                case '/home':
-                    this.bottomNav = 0;
-                    break;
-                case '/dungeon':
-                    this.bottomNav = 1;
-                    break;
-                case '/profile':
-                    this.bottomNav = 2;
-                    break;
-                case '/forum':
-                    this.bottomNav = 3;
-                    break;
-                case '/shop':
-                    this.bottomNav = 4;
-                    break;
-                case '/leaderBoard':
-                    this.bottomNav = 5;
-                    break;
-                default:
-                    this.bottomNav = 0;
-                    break;
-            }
+        router.afterEach(r => {
+            this.bottomNav = this.navFromRoute(r.path);
         });
     },
     // language=HTML
     template: `
         <v-bottom-navigation background-color="primary"
-                             v-model="bottomNav"
+                             :value="bottomNav"
                              app
                              mandatory>
-            <router-link to="/home" tag="v-btn">
+            <router-link to="/home" tag="v-btn" v-show="!authUser">
                 <span>Home</span>
                 <v-icon>mdi-home</v-icon>
             </router-link>
-            <router-link to="/dungeon" tag="v-btn" :disabled="!authUser">
+            <router-link to="/dungeon" tag="v-btn" v-if="authUser">
                 <span>Dungeon</span>
                 <v-icon>mdi-castle</v-icon>
             </router-link>
-            <router-link to="/profile" tag="v-btn" :disabled="!authUser">
+            <router-link to="/profile" tag="v-btn" v-if="authUser">
                 <span>Profile</span>
                 <v-icon>mdi-face-profile</v-icon>
             </router-link>
-            <router-link to="/forum" tag="v-btn" :disabled="!authUser">
+            <router-link to="/forum" tag="v-btn" v-if="authUser">
                 <span>Forum</span>
                 <v-icon>mdi-forum</v-icon>
             </router-link>
-            <router-link to="/shop" tag="v-btn" :disabled="!authUser">
+            <router-link to="/shop" tag="v-btn" v-if="authUser">
                 <span>Shop</span>
                 <v-icon>mdi-basket</v-icon>
             </router-link>
-            <router-link to="/leaderBoard" tag="v-btn">
+            <router-link to="/leaderBoard" tag="v-btn" v-if="authUser">
                 <span>LeaderBoard</span>
                 <v-icon>mdi-bulletin-board</v-icon>
             </router-link>
@@ -120,6 +116,37 @@ Vue.component('snack', {
         </v-snackbar>
     `
 });
+Vue.component('userBar', {
+    props: {
+        authUser: {required: true}
+    },
+    // language=HTML
+    template: `
+        <v-col cols="12" justify-self="center">
+            <v-toolbar color="primary"
+                       v-if="authUser"
+                       floating>
+                <v-toolbar-title>{{authUser.displayName}} -</v-toolbar-title>
+                <v-chip color="gold"
+                        class="ml-4">
+                    Points: {{authUser.points}}
+                </v-chip>
+                <v-chip color="gold"
+                        class="ml-4">
+                    Badges: {{authUser.badgeCount}}
+                </v-chip>
+                <v-chip color="gold"
+                        class="ml-4">
+                    Up-Votes: {{authUser.upVotes}}
+                </v-chip>
+                <v-chip color="gold"
+                        class="ml-4">
+                    Down-Votes: {{authUser.downVotes}}
+                </v-chip>
+            </v-toolbar>
+        </v-col>
+    `
+});
 //Task Components
 Vue.component('task', {
     mixins: [userMix],
@@ -149,7 +176,6 @@ Vue.component('task', {
             }
         },
         finishTask() {
-            //listener for finish task
             if (this.authUser &&
                 this.userIsOnTask) {
                 let userOnTask = this.task.usersOnTask.find(u => {
@@ -187,6 +213,7 @@ Vue.component('task', {
                         break;
                 }
 
+                bus.$emit('changeTask', this.task);
                 bus.$emit('snackbar', 'You have been rewarded ' + this.task.points + ' points!');
             }
         },
@@ -202,8 +229,6 @@ Vue.component('task', {
                 bus.$emit('snackbar', 'You do not have enough points for this action!')
             }
         }
-
-
     },
     computed: {
         userIsOnTask() {
@@ -246,26 +271,31 @@ Vue.component('task', {
         <v-card max-width="350" min-width="250" color="secondary">
             <v-list-item three-line>
                 <v-list-item-content>
-                    <div class="overline mb-4">Points: {{task.points}}</div>
                     <v-list-item-title class="headline mb-1">{{task.category}}</v-list-item-title>
+                    <h3 class="mb-2">Points: {{task.points}}</h3>
                     <v-list-item-subtitle>Task: {{task.details}}</v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
+            <v-divider horizontal/>
             <v-card-actions>
                 <v-btn text color="action"
                        v-if="!userIsOnTask"
-                       @click="startTask">Start Task
+                       @click.prevent="startTask">Start Task
                 </v-btn>
                 <v-btn text color="actionTwo"
                        v-if="userIsOnTask && canComplete"
-                       @click="finishTask">Finish Task
+                       @click.prevent="finishTask">Finish Task
                 </v-btn>
                 <v-btn text color="grey"
                        v-if="userIsOnTask && !canComplete"
                        disabled>Completable After: {{completeTime}}
                 </v-btn>
-                <v-btn text color="action" v-if="!userIsOnTask" @click="changeTask" :disabled="this.authUser.points < 8">
-                    Refresh task </br>(8 points)
+                <v-spacer/>
+                <v-btn text color="action"
+                       v-if="!userIsOnTask"
+                       @click.prevent="changeTask"
+                       :disabled="this.authUser.points < 8">
+                    New Random Task</br>(8 points)
                 </v-btn>
             </v-card-actions>
         </v-card>
@@ -290,7 +320,10 @@ Vue.component('storeBadge', {
                     .update({ownedByUsers: this.badge.ownedByUsers});
                 db.collection('users')
                     .doc(this.authUser.uid)
-                    .update({points: firebase.firestore.FieldValue.increment(this.badge.cost * -1)});
+                    .update({
+                        points: firebase.firestore.FieldValue.increment(this.badge.cost * -1),
+                        badgeCount: firebase.firestore.FieldValue.increment(1)
+                    });
 
                 bus.$emit('snackbar', this.authUser.displayName + ' now has [ ' + this.badge.title + ' ] !');
             }
@@ -321,7 +354,10 @@ Vue.component('storeBadge', {
             <!--</v-img>-->
             <v-card-subtitle>{{badge.details}}</v-card-subtitle>
             <v-divider horizontal></v-divider>
-            <v-card-text>Cost: {{badge.cost}} points</v-card-text>
+            <v-card-text>
+                <h3>Cost: {{badge.cost}} points</h3>
+            </v-card-text>
+            <v-divider horizontal></v-divider>
             <v-card-actions>
                 <v-btn text
                        color="action"
@@ -352,7 +388,7 @@ Vue.component('profileBadge', {
     template: `
         <v-card max-width="350" color="secondary">
             <!--<v-img src="img/buysomeBling.jpg"> Uncomment for some images on the badge-->
-                <v-card-title>{{badge.title}}</v-card-title>
+            <v-card-title>{{badge.title}}</v-card-title>
             <!--</v-img>-->
             <v-divider horizontal></v-divider>
             <v-card-subtitle>{{badge.details}}</v-card-subtitle>

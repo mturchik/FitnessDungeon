@@ -33,6 +33,10 @@
                        @click="create">
                     Create Badge
                 </v-btn>
+                <v-btn color="success"
+                       v-if="notLoggedIn"
+                       @click="login">Log-In
+                </v-btn>
             </v-form>
             <h1>{{results}}</h1>
         </v-container>
@@ -70,7 +74,8 @@
             title: '',
             details: '',
             cost: 1,
-            results: ''
+            results: '',
+            notLoggedIn: true
         },
         methods: {
             create(){
@@ -80,14 +85,26 @@
                 badge.cost = this.cost;
                 let id = db.collection('badges').doc().id;
                 badge.id = id;
-                db.collection('badges').doc(id).set(badge);
-                this.results = 'Badge Id: ' + id + ' - Has been added';
-                this.reset();
+                db.collection('badges').doc(id).set(badge)
+                    .then(()=>{
+                        this.results = 'Badge Id: ' + id + ' - Has been added';
+                        this.reset();
+                    });
             },
             reset() {
                 this.title = '';
                 this.details = '';
                 this.cost = 1;
+            },
+            login(){
+                firebase.auth()
+                    .signInWithPopup(new firebase.auth.GoogleAuthProvider())
+                    .then(()=>{
+                        this.notLoggedIn = false;
+                    })
+                    .catch(function (error) {
+                        console.error(error);
+                    });
             }
         },
         computed: {
@@ -95,7 +112,8 @@
                 return 'Cost: $' + this.cost;
             }
         },
-        watch: {}
+        mounted(){
+        }
     });
 </script>
 

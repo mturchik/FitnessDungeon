@@ -109,7 +109,7 @@ const DungeonPage = Vue.component('DungeonPage', {
         tasks: db.collection('tasks')
     },
     methods: {
-        getRandomTask(catFilter) {
+        getRandomTask(catFilter, ignoreOnTask) {
             let fTasks = this.tasks.filter(t => {
                 return t.category === catFilter
             });
@@ -118,27 +118,33 @@ const DungeonPage = Vue.component('DungeonPage', {
                     return t.uid === this.authUser.uid
                 })
             });
+            if(ignoreOnTask && taskUserIsOn){
+                fTasks.splice(fTasks.indexOf(taskUserIsOn), 1);
+                taskUserIsOn = null;
+            }
 
             return taskUserIsOn ? taskUserIsOn : fTasks[Math.floor(Math.random() * fTasks.length)];
         },
         addAllDisplayedTasks() {
-            this.showPicture = false;
-            this.displayedStrengthTask = (this.getRandomTask("Cardio"));
-            this.displayedCardioTask = (this.getRandomTask("Strength"));
-            this.displayedFlexibilityTask = (this.getRandomTask("Flexibility"));
+            if (this.tasks.length > 0) {
+                this.displayedStrengthTask = (this.getRandomTask("Strength"));
+                this.displayedCardioTask = (this.getRandomTask("Cardio"));
+                this.displayedFlexibilityTask = (this.getRandomTask("Flexibility"));
+                this.showPicture = false;
+            }
         }
     },
     mounted() {
         bus.$on('changeTask', (task) => {
             switch (task.category) {
                 case 'Cardio':
-                    this.displayedStrengthTask = (this.getRandomTask("Cardio"));
+                    this.displayedCardioTask = (this.getRandomTask("Cardio, true"));
                     break;
                 case 'Strength':
-                    this.displayedCardioTask = (this.getRandomTask("Strength"));
+                    this.displayedStrengthTask = (this.getRandomTask("Strength, true"));
                     break;
                 case 'Flexibility':
-                    this.displayedFlexibilityTask = (this.getRandomTask("Flexibility"));
+                    this.displayedFlexibilityTask = (this.getRandomTask("Flexibility", true));
                     break;
             }
         });

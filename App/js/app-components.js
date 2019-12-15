@@ -182,7 +182,11 @@ Vue.component('task', {
                 });
                 //remove user from 'on task' status
                 this.task.usersOnTask.splice(this.task.usersOnTask.indexOf(userOnTask), 1);
-                db.collection('tasks').doc(this.task.id).update({usersOnTask: this.task.usersOnTask});
+                db.collection('tasks').doc(this.task.id)
+                    .update({usersOnTask: this.task.usersOnTask})
+                    .then(() => {
+                        bus.$emit('changeTask', this.task);
+                    });
                 //change local user.points value then update db version
                 switch (this.task.category) {
                     case 'Cardio':
@@ -212,7 +216,6 @@ Vue.component('task', {
                         break;
                 }
 
-                bus.$emit('changeTask', this.task);
                 bus.$emit('snackbar', 'You have been rewarded ' + this.task.points + ' points!');
             }
         },
@@ -221,9 +224,11 @@ Vue.component('task', {
                 db.collection('users').doc(this.authUser.uid)
                     .update({
                         points: firebase.firestore.FieldValue.increment(-8),
+                    })
+                    .then(() => {
+                        bus.$emit('changeTask', this.task);
+                        bus.$emit('snackbar', 'You have used 8 of your points!');
                     });
-                bus.$emit('changeTask', this.task);
-                bus.$emit('snackbar', 'You have used 8 of your points!');
             } else {
                 bus.$emit('snackbar', 'You do not have enough points for this action!')
             }

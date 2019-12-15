@@ -42,6 +42,10 @@
                        @click="create">
                     Create Task
                 </v-btn>
+                <v-btn color="success"
+                       v-if="notLoggedIn"
+                       @click="login">Log-In
+                </v-btn>
             </v-form>
             <h1>{{results}}</h1>
         </v-container>
@@ -80,8 +84,9 @@
             category: '',
             details: '',
             points: 1,
-            timeout: 0,
-            results: ''
+            timeout: 1,
+            results: '',
+            notLoggedIn: true
         },
         methods: {
             create(){
@@ -92,8 +97,27 @@
                 task.timeout=this.timeout;
                 let id = db.collection('tasks').doc()._firestoreClient.clientId;
                 task.id = id;
-                db.collection('tasks').doc(id).set(task);
-                this.results = 'Task Id: ' + id + ' - Has been added';
+                db.collection('tasks').doc(id).set(task)
+                    .then(()=>{
+                        this.results = 'Task Id: ' + id + ' - Has been added';
+                        this.reset();
+                    });
+            },
+            reset() {
+                this.category = '';
+                this.details = '';
+                this.points = 1;
+                this.timeout = 1;
+            },
+            login(){
+                firebase.auth()
+                    .signInWithPopup(new firebase.auth.GoogleAuthProvider())
+                    .then(()=>{
+                        this.notLoggedIn = false;
+                    })
+                    .catch(function (error) {
+                        console.error(error);
+                    });
             }
         },
         computed: {
@@ -103,8 +127,7 @@
             timeoutString(){
                 return 'Minutes ' + this.timeout;
             }
-        },
-        watch: {}
+        }
     });
 </script>
 

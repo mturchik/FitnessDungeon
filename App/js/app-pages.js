@@ -112,9 +112,11 @@ const DungeonPage = Vue.component('DungeonPage', {
     },
     methods: {
         getRandomTask(catFilter, ignoreOnTask) {
+            //filter down category
             let fTasks = this.tasks.filter(t => {
                 return t.category === catFilter
             });
+            //get a task user is on
             let taskUserIsOn = fTasks.find(t => {
                 return t.usersOnTask.some(t => {
                     return t.uid === this.authUser.uid
@@ -140,10 +142,10 @@ const DungeonPage = Vue.component('DungeonPage', {
         bus.$on('changeTask', (task) => {
             switch (task.category) {
                 case 'Cardio':
-                    this.displayedCardioTask = (this.getRandomTask("Cardio, true"));
+                    this.displayedCardioTask = (this.getRandomTask("Cardio", true));
                     break;
                 case 'Strength':
-                    this.displayedStrengthTask = (this.getRandomTask("Strength, true"));
+                    this.displayedStrengthTask = (this.getRandomTask("Strength", true));
                     break;
                 case 'Flexibility':
                     this.displayedFlexibilityTask = (this.getRandomTask("Flexibility", true));

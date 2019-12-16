@@ -382,6 +382,11 @@ Vue.component('profileBadge', {
             return this.authUser.points >= this.badge.cost;
         }
     },
+    methods:{
+        display(){
+            bus.$emit('changeDisplayBadge', this.badge.Display)
+        }
+    },
 
     // language=HTML
     template: `
@@ -391,6 +396,13 @@ Vue.component('profileBadge', {
             <!--</v-img>-->
             <v-divider horizontal></v-divider>
             <v-card-subtitle>{{badge.details}}</v-card-subtitle>
+            <v-divider horizontal></v-divider>
+            <v-card-actions>
+                <v-btn text
+                       color="action"
+                       @click="display">Display Outfit
+                </v-btn>
+            </v-card-actions>
         </v-card>
     `
 });

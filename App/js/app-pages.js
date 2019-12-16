@@ -1,6 +1,7 @@
 const HomePage = Vue.component('HomePage', {
     mixins: [userMix],
     data: () => ({
+
         cards: [
             {
                 title: 'How to Play',
@@ -102,7 +103,8 @@ const DungeonPage = Vue.component('DungeonPage', {
             displayedStrengthTask: null,
             displayedCardioTask: null,
             displayedFlexibilityTask: null,
-            showPicture: true
+            showPicture: true,
+
         };
     },
     firestore: {
@@ -183,7 +185,8 @@ const LeaderBoardPage = Vue.component('LeaderBoardPage', {
                 {text: 'Up-Votes', value: 'upVotes'},
                 {text: 'Down-Votes', value: 'downVotes'}
             ],
-            users: []
+            users: [],
+
         };
     },
     firestore: {
@@ -208,23 +211,62 @@ const LeaderBoardPage = Vue.component('LeaderBoardPage', {
 });
 const ProfilePage = Vue.component('ProfilePage', {
     mixins: [userMix, badgeMix],
+    data() {
+        return {
+            displayProfilePicture: 'img/baseGuy.png'
+
+        };
+    },
+    mounted(){
+        bus.$on('changeDisplayBadge', (display) => {
+            switch (display) {
+                case "Sewage":
+                    this.displayProfilePicture = 'img/SewageGuy.png';
+                    break;
+                case "Rocker":
+                    this.displayProfilePicture = 'img/RockerGuy.png';
+                    break;
+                case "TP":
+                    this.displayProfilePicture = 'img/TPGuy.png';
+                    break;
+                case "Buff":
+                    this.displayProfilePicture = 'img/BuffGuy.png';
+                    break;
+                case "Best":
+                    this.displayProfilePicture = 'img/BestGuy.png';
+                    break;
+                case "Hoard":
+                    this.displayProfilePicture = 'img/HoardGuy.png';
+                    break;
+
+            }
+        });
+    },
     // language=HTML
-    template: `
+    template: `        
         <v-row>
             <userBar :auth-user="authUser"></userBar>
+            <v-col cols="12"
+                   sm="4"
+                   lg="3">
+                <v-card>
+                    <v-img :src="displayProfilePicture"></v-img>
+                </v-card>
+            </v-col>
+            
             <v-col v-for="(badge, i) in badges"
                    v-if="userHasBought(badge)"
                    :key="i"
                    cols="12"
                    sm="4"
                    lg="3">
-                <profileBadge :badge="badge" :auth-user="authUser"/>
+                <profileBadge :badge="badge" :auth-user="authUser" />
             </v-col>
         </v-row>
     `
 });
 const ForumPage = Vue.component('ForumPage', {
-    mixins: [userMix, badgeMix],
+    mixins: [userMix],
     data() {
         return {
             posts: []

@@ -76,13 +76,15 @@ const Badge = function (firebaseBadge) {
         title: '',
         details: '',
         cost: 0,
-        ownedByUsers: []
+        ownedByUsers: [],
+        Display:''
     };
 
     if (firebaseBadge) {
         badge.id = firebaseBadge.name ? firebaseBadge.name.substr(firebaseBadge.name.lastIndexOf('/') + 1) : '';
         badge.title = firebaseBadge.fields.title ? firebaseBadge.fields.title.stringValue : '';
         badge.details = firebaseBadge.fields.details ? firebaseBadge.fields.details.stringValue : '';
+        badge.Display = firebaseBadge.fields.Display ? firebaseBadge.fields.Display.stringValue : '';
         badge.cost = firebaseBadge.fields.cost ? parseInt(firebaseBadge.fields.cost.integerValue) : 0;
         //if the array exists, and there are values in it, add them
         if (firebaseBadge.fields.ownedByUsers && firebaseBadge.fields.ownedByUsers.arrayValue.values) {

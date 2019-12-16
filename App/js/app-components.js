@@ -314,7 +314,7 @@ Vue.component('storeBadge', {
     },
     methods: {
         buyBadge() {
-            if (!this.userHasBought()) {
+            if (!this.userHasBought) {
                 this.badge.ownedByUsers.push({
                     uid: this.authUser.uid,
                     purchasedOn: new Date()
@@ -364,7 +364,6 @@ Vue.component('storeBadge', {
             <v-divider horizontal></v-divider>
             <v-card-actions>
                 <v-btn text
-                       color="action"
                        :disabled="!userCanAfford"
                        @click.prevent="buyBadge">Buy Badge
                 </v-btn>
